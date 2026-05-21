@@ -19,13 +19,24 @@ function Read-Text($LiteralPath, $MaxChars = 40000) {
     return $text
 }
 
-function Add-Rec($Bucket, $Mechanism, $Title, $Reason, $Benefit, $Safety = "") {
+function Add-Rec($Bucket, $Mechanism, $Title, $Reason, $Benefit, $Safety = "", $FitEvidence = "", $Confirmation = "") {
+    if (-not $FitEvidence) { $FitEvidence = $Reason }
+    if (-not $Confirmation) {
+        $Confirmation = switch ($Bucket) {
+            "Immediate" { "Confirm before implementation; report is read-only by default." }
+            "Optional" { "Confirm this workflow is active before adding setup." }
+            "Avoid" { "Do not implement unless project signals change." }
+            default { "Confirm with the user before changing setup." }
+        }
+    }
     $script:recommendations[$Bucket] += [ordered]@{
         mechanism = $Mechanism
         title = $Title
         reason = $Reason
         benefit = $Benefit
         safety = $Safety
+        fitEvidence = $FitEvidence
+        confirmation = $Confirmation
     }
 }
 
@@ -50,6 +61,30 @@ function Get-ModelFit() {
     return "Use a fast model for inventory and deterministic checks; escalate to a strong coding or review model only when recommendations would touch durable repo setup."
 }
 
+function Get-ModelPlan() {
+    if ($signals.looksLikeSourceLift) {
+        return @(
+            "Fast model: inventory supplier files, count missing images/prices, and run deterministic smoke checks.",
+            "Strong coding model: update catalog generation logic, workbook export code, or local UI behavior.",
+            "Strongest/review model: review pricing policy, provenance rules, raw-data edit policy, or broad automation plans."
+        )
+    }
+    return @(
+        "Fast model: inventory files, run lint/test checks, and make narrow deterministic edits.",
+        "Strong coding model: implement setup scripts, project rules, tests, or refactors across several files.",
+        "Strongest/review model: review security, architecture, high-autonomy hooks, MCP access, or long-running migrations."
+    )
+}
+
+function Get-SafeSourcePolicy() {
+    return @(
+        "Prefer OpenAI skills catalog and `$skill-installer for Codex installs.",
+        "Use Agent Skills, Anthropic skills, and GitHub Copilot skill docs as reference or compatibility sources with review.",
+        "Treat broad community directories as discovery-only and inspect original repos before recommending.",
+        "Reject `officialskills.sh` as a vetted source."
+    )
+}
+
 function Get-DiscussionQuestions() {
     $questions = @()
     $questions += "Which AI clients should this repo actually support: Codex only, Claude Code parity, GitHub Copilot, or cross-client Agent Skills?"
@@ -65,9 +100,17 @@ function Get-DiscussionQuestions() {
 }
 
 function Get-SetupPlan() {
+    if ($signals.looksLikeSourceLift) {
+        return @(
+            "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
+            "Write or update AGENTS.md/rules with source-catalog boundaries, verification commands, and raw/generated file policy.",
+            "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
+            "Run the catalog build, JSON/workbook checks, and one UI smoke workflow before adding hooks or automations."
+        )
+    }
     return @(
         "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
-        "Write or update AGENTS.md/rules with repo-specific boundaries, verification commands, and raw/generated file policy.",
+        "Write or update AGENTS.md/rules with repo-specific boundaries and verification commands.",
         "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
         "Run the listed verification commands and one representative workflow before adding hooks or automations."
     )
@@ -303,6 +346,8 @@ $report = [ordered]@{
         dirtyWorktree = $signals.hasDirtyWorktree
         riskProfile = Get-RiskProfile
         modelFit = Get-ModelFit
+        modelPlan = @(Get-ModelPlan)
+        safeSourcePolicy = @(Get-SafeSourcePolicy)
         existingCodex = [ordered]@{
             hooks = $signals.codexHooksEnabled
             pluginHooks = $signals.codexPluginHooksEnabled
@@ -346,6 +391,7 @@ Write-Output "- Files sampled: $($report.detected.filesSampled)"
 Write-Output "- Dirty worktree: $($report.detected.dirtyWorktree)"
 Write-Output "- Risk profile: $($report.detected.riskProfile)"
 Write-Output "- Model fit: $($report.detected.modelFit)"
+Write-Output "- Safe source policy: $($report.detected.safeSourcePolicy -join ' ')"
 Write-Output "- Existing Codex hooks: hooks=$($report.detected.existingCodex.hooks), plugin_hooks=$($report.detected.existingCodex.pluginHooks), Sendbird=$($report.detected.existingCodex.sendbird)"
 if ($report.detected.gaps.Count -gt 0) {
     Write-Output "- Gaps: $($report.detected.gaps -join '; ')"
@@ -362,8 +408,16 @@ foreach ($bucket in @("Immediate", "Optional", "Avoid")) {
     foreach ($rec in $items) {
         $line = "- [$($rec.mechanism)] $($rec.title) - $($rec.reason) Benefit: $($rec.benefit)"
         if ($rec.safety) { $line += " Safety: $($rec.safety)" }
+        if ($rec.fitEvidence) { $line += " Fit: $($rec.fitEvidence)" }
+        if ($rec.confirmation) { $line += " Confirm: $($rec.confirmation)" }
         Write-Output $line
     }
+}
+
+Write-Output ""
+Write-Output "**Model Plan**"
+for ($i = 0; $i -lt $report.detected.modelPlan.Count; $i++) {
+    Write-Output "$($i + 1). $($report.detected.modelPlan[$i])"
 }
 
 Write-Output ""
