@@ -29,6 +29,50 @@ function Add-Rec($Bucket, $Mechanism, $Title, $Reason, $Benefit, $Safety = "") {
     }
 }
 
+function Get-RiskProfile() {
+    $risks = @()
+    if ($signals.hasDirtyWorktree) { $risks += "dirty worktree" }
+    if ($signals.hasExcelInputs -or $signals.looksLikeSourceLift) { $risks += "raw/generated data boundary" }
+    if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) { $risks += "hook execution" }
+    if (-not $signals.hasTests) { $risks += "weak mechanical verification" }
+    if ($signals.hasCi) { $risks += "CI/release surface" }
+    if ($risks.Count -eq 0) { return "low: lightweight repo with no major automation or data-risk signals detected" }
+    return "moderate: " + ($risks -join ", ")
+}
+
+function Get-ModelFit() {
+    if ($signals.looksLikeSourceLift) {
+        return "Use a strong coding model for catalog generation/UI changes, a fast model for inventory and workbook smoke checks, and a strongest/review model for pricing, provenance, or raw-data policy decisions."
+    }
+    if ($signals.hasFrontendDeps -or $signals.hasBackendDeps -or $signals.hasTypeScript) {
+        return "Use a strong coding model for implementation, a fast model for lint/test fixture work, and a strongest/review model for architecture, security, or broad refactors."
+    }
+    return "Use a fast model for inventory and deterministic checks; escalate to a strong coding or review model only when recommendations would touch durable repo setup."
+}
+
+function Get-DiscussionQuestions() {
+    $questions = @()
+    $questions += "Which AI clients should this repo actually support: Codex only, Claude Code parity, GitHub Copilot, or cross-client Agent Skills?"
+    if ($signals.looksLikeSourceLift) {
+        $questions += "Should catalog refreshes remain manual, or is there a real supplier cadence that justifies automation?"
+        $questions += "Who is allowed to approve edits to raw source files versus generated catalog outputs?"
+    } else {
+        $questions += "Which workflow hurts most today: onboarding, review, CI repair, docs, security, frontend QA, or release prep?"
+        $questions += "How much autonomy is acceptable: read-only recommendations, proposed patches, or scheduled/background work?"
+    }
+    $questions += "Should model use optimize for cost/speed, strongest review quality, or a tiered plan by task risk?"
+    return $questions | Select-Object -First 4
+}
+
+function Get-SetupPlan() {
+    return @(
+        "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
+        "Write or update AGENTS.md/rules with repo-specific boundaries, verification commands, and raw/generated file policy.",
+        "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
+        "Run the listed verification commands and one representative workflow before adding hooks or automations."
+    )
+}
+
 function Test-FocusMatch($Recommendation) {
     if ($Focus -eq "all") { return $true }
     $mechanism = [string]$Recommendation.mechanism
@@ -257,6 +301,8 @@ $report = [ordered]@{
         filesSampled = $inventory.counts.filesSampled
         branch = $inventory.git.branch
         dirtyWorktree = $signals.hasDirtyWorktree
+        riskProfile = Get-RiskProfile
+        modelFit = Get-ModelFit
         existingCodex = [ordered]@{
             hooks = $signals.codexHooksEnabled
             pluginHooks = $signals.codexPluginHooksEnabled
@@ -270,11 +316,14 @@ $report = [ordered]@{
         )
     }
     recommendations = $recommendations
+    discussBeforeInstalling = @(Get-DiscussionQuestions)
     nextSetupPass = @(
-        "Use `/init` or a manual pass to write a short AGENTS.md/rules file for source immutability and verification.",
+        "Discuss and confirm target AI clients, autonomy level, model tiering, and active workflows before installing anything.",
+        "Use `/init` or a manual pass to write a short AGENTS.md/rules file for repo boundaries and verification.",
         $sourceLiftNextStep,
-        "Keep hooks lightweight; use explicit verification for catalog builds and visual QA."
+        "Keep hooks lightweight; use explicit verification for builds, tests, and visual QA."
     )
+    setupPlan = @(Get-SetupPlan)
 }
 
 if ($Json) {
@@ -295,6 +344,8 @@ Write-Output "- Stack: $($report.detected.stack)"
 Write-Output "- Branch: $($report.detected.branch)"
 Write-Output "- Files sampled: $($report.detected.filesSampled)"
 Write-Output "- Dirty worktree: $($report.detected.dirtyWorktree)"
+Write-Output "- Risk profile: $($report.detected.riskProfile)"
+Write-Output "- Model fit: $($report.detected.modelFit)"
 Write-Output "- Existing Codex hooks: hooks=$($report.detected.existingCodex.hooks), plugin_hooks=$($report.detected.existingCodex.pluginHooks), Sendbird=$($report.detected.existingCodex.sendbird)"
 if ($report.detected.gaps.Count -gt 0) {
     Write-Output "- Gaps: $($report.detected.gaps -join '; ')"
@@ -316,7 +367,19 @@ foreach ($bucket in @("Immediate", "Optional", "Avoid")) {
 }
 
 Write-Output ""
+Write-Output "**Discuss Before Installing**"
+for ($i = 0; $i -lt $report.discussBeforeInstalling.Count; $i++) {
+    Write-Output "$($i + 1). $($report.discussBeforeInstalling[$i])"
+}
+
+Write-Output ""
 Write-Output "**Next Setup Pass**"
 for ($i = 0; $i -lt $report.nextSetupPass.Count; $i++) {
     Write-Output "$($i + 1). $($report.nextSetupPass[$i])"
+}
+
+Write-Output ""
+Write-Output "**Verify Setup**"
+for ($i = 0; $i -lt $report.setupPlan.Count; $i++) {
+    Write-Output "$($i + 1). $($report.setupPlan[$i])"
 }
