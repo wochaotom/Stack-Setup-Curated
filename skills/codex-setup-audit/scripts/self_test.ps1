@@ -42,6 +42,8 @@ Add-Check "audit emits discussion plan" ($auditText -match "Discuss Before Insta
 Add-Check "audit emits staged setup plan" ($auditText -match "Implementation Plan" -and $auditText -match "Verify Setup" -and $auditText -match "Run ")
 Add-Check "recommendations include nonduplicate fit" ($auditText -match " Fit: " -and $auditText -notmatch "Fit: This repo is a source-catalog cleanup prototype")
 Add-Check "verify command renders literally" ($auditText -match 'audit\.ps1 -Json' -and $auditText -notmatch ([string][char]7))
+Add-Check "json emits new setup keys" ($auditJson.detected.safeSourcePolicy.Count -gt 0 -and $auditJson.detected.modelPlan.Count -gt 0 -and $auditJson.implementationPlan.Count -gt 0 -and $auditJson.verifyPlan.Count -gt 0)
+Add-Check "json fit evidence populated" (@($auditJson.recommendations.Immediate + $auditJson.recommendations.Optional + $auditJson.recommendations.Avoid | Where-Object { -not $_.fitEvidence }).Count -eq 0)
 Add-Check "source project fit" ($auditText -match "SourceLift|Great Homes Source|catalog-cleanup|source-catalog" -and $auditText -match "raw")
 Add-Check "uses companion skill when present" ($auditText -match "existing SourceLift catalog-refresh skill")
 Add-Check "next steps do not recreate companion" ($auditText -match "\$sourcelift-catalog-refresh" -and $auditText -notmatch "Create a SourceLift-specific catalog-refresh skill if")

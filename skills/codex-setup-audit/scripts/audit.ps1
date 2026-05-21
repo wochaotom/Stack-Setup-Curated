@@ -46,12 +46,12 @@ function Get-RiskProfile() {
 
 function Get-ModelFit() {
     if ($signals.looksLikeSourceLift) {
-        return "Use a strong coding model for catalog generation/UI changes, a fast model for inventory and workbook smoke checks, and a strongest/review model for pricing, provenance, or raw-data policy decisions."
+        return "tiered: fast inventory, strong catalog implementation, review-grade pricing/provenance decisions"
     }
     if ($signals.hasFrontendDeps -or $signals.hasBackendDeps -or $signals.hasTypeScript) {
-        return "Use a strong coding model for implementation, a fast model for lint/test fixture work, and a strongest/review model for architecture, security, or broad refactors."
+        return "tiered: fast checks, strong implementation, review-grade architecture/security"
     }
-    return "Use a fast model for inventory and deterministic checks; escalate to a strong coding or review model only when recommendations would touch durable repo setup."
+    return "minimal: fast inventory first, escalate only for durable setup changes"
 }
 
 function Get-ModelPlan() {
@@ -125,24 +125,54 @@ function Get-VerifyPlan() {
     } elseif ($signals.hasPythonQuality) {
         $verify += "Run pytest and any configured Ruff/mypy/pyright checks."
     } else {
-        $verify += "Run the minimal verification command defined during setup."
+        $verify += "Run `git status --short` and inspect setup-only file changes."
+        $verify += "Define a minimal repo verification command before implementing durable setup."
     }
     $verify += 'Re-run `audit.ps1 -Json` and confirm selected recommendations, discussion questions, and avoid-list entries still match the repo.'
     return $verify
 }
 
 function Get-DefaultFitEvidence($Mechanism) {
-    $evidence = @()
+    $evidence = switch ($Mechanism) {
+        "AGENTS.md/rules" {
+            @("No AGENTS.md detected", "repo has persistent source/workflow rules worth preserving")
+        }
+        "rule" {
+            @("dirty worktree detected", "repo setup changes need isolation from user work")
+        }
+        "skill" {
+            @("repeatable domain workflow detected", "matching installed/local skill available or justified")
+        }
+        "local environment" {
+            @("no tests detected", "agents need a stable command before hooks or automation")
+        }
+        "command" {
+            @("repeatable operator workflow detected", "built-in commands avoid custom command maintenance")
+        }
+        "automation" {
+            @("recurring value depends on real cadence", "source-health workflow is useful only after pilots")
+        }
+        "hook" {
+            @("hook/plugin-hook config or hook-sensitive workflow detected", "recommendation is bounded by speed and side-effect risk")
+        }
+        "MCP" {
+            @("external-system signal is weak or unconfirmed", "narrower built-in plugin/app is safer until daily workflow proves need")
+        }
+        "subagent" {
+            @("repo size and task coupling drive delegation fit", "small repos usually do not need permanent reviewer agents")
+        }
+        "plugin/app" {
+            @("curated connector/plugin is available for detected workflow", "preferred over broad MCP when scope is narrow")
+        }
+        default {
+            @("repo inventory matched $Mechanism recommendation heuristics")
+        }
+    }
     if ($signals.looksLikeSourceLift) { $evidence += "SourceLift/Great Homes Source signals in README/docs" }
-    if ($signals.hasStaticApp) { $evidence += "static app files detected" }
-    if ($signals.hasPackageJson) { $evidence += "package.json detected" }
     if ($signals.hasFrontendDeps) { $evidence += "frontend dependencies detected" }
     if ($signals.hasBackendDeps) { $evidence += "backend dependencies detected" }
     if ($signals.hasTypeScript) { $evidence += "TypeScript detected" }
-    if ($signals.hasNodeTests -or $signals.hasPythonQuality -or $signals.hasTests) { $evidence += "test or quality tooling detected" }
     if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) { $evidence += "existing hook/plugin-hook config detected" }
-    if (-not $signals.hasTests) { $evidence += "no tests detected" }
-    if (-not $evidence) { $evidence += "repo inventory matched $Mechanism recommendation heuristics" }
     return "Mechanism: $Mechanism. Signals: " + (($evidence | Select-Object -Unique) -join "; ")
 }
 

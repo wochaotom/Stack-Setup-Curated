@@ -66,6 +66,7 @@ testpaths = ["tests"]
     Add-Check "react quality hooks gated" ($reactAudit -match "JavaScript quality hooks" -and $reactAudit -match "fast and stable")
     Add-Check "react model fit and discussion" ($reactAudit -match "Model fit:" -and $reactAudit -match "Model Plan" -and $reactAudit -match "Which workflow hurts most today")
     Add-Check "react fit evidence emitted" ($reactAudit -match " Fit: " -and $reactAudit -notmatch "Fit: Frontend dependencies were detected")
+    Add-Check "react model fit is concise" ($reactAudit -match "Model fit: tiered:" -and $reactAudit -notmatch "Model fit: Use a strong coding model")
     Add-Check "python quality hooks gated" ($pyAudit -match "Ruff/pytest hooks" -and $pyAudit -match "command timing")
     Add-Check "python setup plan emitted" ($pyAudit -match "Discuss Before Installing" -and $pyAudit -match "Verify Setup")
     Add-Check "fixtures stay non-sourcelift" ($reactAudit -notmatch "SourceLift" -and $pyAudit -notmatch "SourceLift")
