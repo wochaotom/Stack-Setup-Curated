@@ -72,15 +72,25 @@ function Get-ModelPlan() {
 function Get-SafeSourcePolicy() {
     return @(
         "Prefer OpenAI skills catalog and `$skill-installer when the confirmed target is Codex.",
-        "Use Agent Skills, Anthropic skills, and GitHub Copilot skill docs as reference or compatibility sources with review.",
+        "Use Agent Skills, Anthropic skills, GitHub Copilot, Cursor, and Google Antigravity official docs as reference or compatibility sources with review.",
         "Treat broad community directories as discovery-only and inspect original repos before recommending.",
         'Reject `officialskills.sh` as a vetted source.'
     )
 }
 
+function Get-ClientPlan() {
+    return @(
+        "Codex: AGENTS.md/rules, curated plugins/apps, `$skill-installer, explicit verification commands, and worktree/local environment setup.",
+        "Claude Code: CLAUDE.md, plugins, skills, agents/subagents, hooks, MCP, and slash commands when Claude parity is required.",
+        "GitHub Copilot: portable Agent Skills and GitHub-hosted skill guidance after previewing skills because community skills are not verified.",
+        "Cursor: `.cursor/rules` for persistent guidance and Cursor MCP via `mcp.json` or `cursor-agent mcp`; do not copy Codex hooks blindly.",
+        "Antigravity: MCP store or `~/.gemini/antigravity/mcp_config.json`, permission controls, and CLI plugin bundles with skills, agents, rules, MCP servers, and hooks."
+    )
+}
+
 function Get-DiscussionQuestions() {
     $questions = @()
-    $questions += "Which AI clients should this repo actually support: Codex only, Claude Code parity, GitHub Copilot, or cross-client Agent Skills?"
+    $questions += "Which AI clients should this repo actually support: Codex only, Claude Code parity, GitHub Copilot, Cursor, Antigravity, or cross-client Agent Skills?"
     if ($signals.looksLikeSourceLift) {
         $questions += "Should catalog refreshes remain manual, or is there a real supplier cadence that justifies automation?"
         $questions += "Who is allowed to approve edits to raw source files versus generated catalog outputs?"
@@ -401,6 +411,7 @@ $report = [ordered]@{
         riskProfile = Get-RiskProfile
         modelFit = Get-ModelFit
         modelPlan = @(Get-ModelPlan)
+        clientPlan = @(Get-ClientPlan)
         safeSourcePolicy = @(Get-SafeSourcePolicy)
         existingCodex = [ordered]@{
             hooks = $signals.codexHooksEnabled
@@ -472,6 +483,12 @@ Write-Output ""
 Write-Output "**Model Plan**"
 for ($i = 0; $i -lt $report.detected.modelPlan.Count; $i++) {
     Write-Output "$($i + 1). $($report.detected.modelPlan[$i])"
+}
+
+Write-Output ""
+Write-Output "**Client Plan**"
+for ($i = 0; $i -lt $report.detected.clientPlan.Count; $i++) {
+    Write-Output "$($i + 1). $($report.detected.clientPlan[$i])"
 }
 
 Write-Output ""

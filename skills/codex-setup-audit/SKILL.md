@@ -9,7 +9,7 @@ description: Use when the user asks for a Claude Code Setup equivalent, repo onb
 
 Produce a read-only setup report for a repository that matches the Claude Code Setup plugin's job and extends it for Codex: inspect the project and recommend the highest-value agent configuration for this repo.
 
-Baseline reference: `https://claude.com/plugins/claude-code-setup` analyzes codebases and recommends Claude Code automations across MCP servers, skills, hooks, subagents, and slash commands. This skill must go further for Codex by adding safe-source qualification, user-fit discussion, concrete setup plans, model guidance, AGENTS.md/rules, local environment setup, automations, GitHub integration, and avoid-list reasoning.
+Baseline reference: `https://claude.com/plugins/claude-code-setup` analyzes codebases and recommends Claude Code automations across MCP servers, skills, hooks, subagents, and slash commands. This skill must go further for Codex by adding safe-source qualification, user-fit discussion, concrete setup plans, model guidance, AGENTS.md/rules, local environment setup, automations, GitHub integration, Cursor support, Antigravity support, and avoid-list reasoning.
 
 ## Hard Rules
 
@@ -76,6 +76,8 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
   - **Qualified with caveat: Anthropic skills repository** - `https://github.com/anthropics/skills` is an official upstream reference for Agent Skills patterns and Claude document skills. Treat it as reference material or a candidate source that still needs Codex compatibility review.
   - **Qualified with caveat: GitHub Copilot agent skills docs** - GitHub's official Copilot docs and `gh skill` workflow are useful for cross-agent compatibility and GitHub-hosted skill discovery, but are not a Codex-curated install source.
   - **Qualified with caveat: github/awesome-copilot** - `https://github.com/github/awesome-copilot` is a GitHub-owned community collection referenced by GitHub's agent-skill docs. Treat it as a GitHub ecosystem index, but preview and inspect every skill because GitHub warns these skills are not verified.
+  - **Qualified with caveat: Cursor official docs** - `https://docs.cursor.com/` is authoritative for Cursor rules, CLI agent, and MCP behavior. Use it for Cursor-compatible plans such as `.cursor/rules` and `mcp.json`; do not treat community Cursor guides as vetted installs.
+  - **Qualified with caveat: Google Antigravity official docs** - `https://www.antigravity.google/docs/` is authoritative for Antigravity MCP, permissions, CLI plugins, skills, agents, rules, and hooks. Treat Antigravity plugin plans as client-specific and verify paths such as `~/.gemini/antigravity/` or `~/.gemini/antigravity-cli/` before recommending edits.
   - **Discovery-only: VoltAgent/awesome-agent-skills and awesomeskills.dev** - useful for finding vendor or community leads. Never recommend installation from these directories without inspecting the original repository and pinning provenance.
   - **Rejected as vetted source: officialskills.sh** - do not call it official, trusted, or vetted. Treat any entry found there as an unverified lead only; current public trust signals and third-party maintenance claims are not enough for qualified-source status.
 - Prefer first-party vendor repositories and the built-in `skill-installer` curated OpenAI source when available.
@@ -133,12 +135,21 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - AGENTS.md/rules: recommend when the repo needs persistent local conventions, architecture boundaries, commands, or safety rules.
 - Local environment: recommend when builds need stable setup commands, local server commands, or generated artifacts.
 
+## Client Guidance
+
+- Codex: prefer AGENTS.md/rules, curated plugins/apps, `$skill-installer`, explicit verification commands, and worktree/local environment setup.
+- Claude Code: map recommendations to CLAUDE.md, plugins, skills, agents/subagents, hooks, MCP, and slash commands when the user asks for Claude parity.
+- GitHub Copilot: map portable Agent Skills and GitHub-hosted skill guidance only after previewing skills because GitHub warns community skills are not verified.
+- Cursor: map persistent project guidance to `.cursor/rules`, MCP integration to Cursor's `mcp.json` / `cursor-agent mcp` flow, and avoid copying Codex hooks into Cursor unless Cursor's current docs support the same lifecycle.
+- Antigravity: map setup to Antigravity's Agent/Manager workflow, MCP store or `mcp_config.json`, permission controls, and CLI plugin bundles containing skills, agents, rules, MCP servers, and hooks.
+- Cross-client plans should name which artifacts are portable and which are client-specific. Do not imply one client's hook/rule/plugin format works in another client without documentation evidence.
+
 ## Model Guidance
 
 - Fast/cheap model: use for inventory, deterministic script edits, fixture generation, and narrow checks.
 - Strong coding model: use for implementation, refactors, test repair, and setup scripts that touch several files.
 - Strongest/review model: use for architecture tradeoffs, security-sensitive setup, high-blast-radius automation, and final review.
-- Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Be Codex-first for Codex installs, but do not hard-code one vendor when the user confirms the repo should support Claude Code, GitHub Copilot, or another Agent Skills client safely.
+- Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Be Codex-first for Codex installs, but do not hard-code one vendor when the user confirms the repo should support Claude Code, GitHub Copilot, Cursor, Antigravity, or another Agent Skills client safely.
 - Do not recommend a more expensive or high-autonomy model when a deterministic hook, local command, or smaller model would satisfy the workflow.
 
 ## Red Flags
