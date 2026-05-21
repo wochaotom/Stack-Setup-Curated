@@ -31,6 +31,7 @@ Add-Check "core categories" ($skill -match "MCP" -and $skill -match "hooks" -and
 Add-Check "external skill discovery gated" ($skill -match "OpenAI skills catalog" -and $skill -match "OpenAI skill-installer curated listing" -and $skill -match "Discovery-only: VoltAgent/awesome-agent-skills")
 Add-Check "officialskills not qualified" ($skill -match "Rejected as vetted source: officialskills\.sh" -and $skill -match "do not call it official, trusted, or vetted")
 Add-Check "standard and upstream references" ($skill -match "Agent Skills standard" -and $skill -match "Anthropic skills repository" -and $skill -match "GitHub Copilot agent skills docs")
+Add-Check "github community index caveated" ($skill -match "github/awesome-copilot" -and $skill -match "not verified")
 Add-Check "source project fit" ($auditText -match "SourceLift|Great Homes Source|catalog-cleanup|source-catalog" -and $auditText -match "raw")
 Add-Check "uses companion skill when present" ($auditText -match "existing SourceLift catalog-refresh skill")
 Add-Check "next steps do not recreate companion" ($auditText -match "\$sourcelift-catalog-refresh" -and $auditText -notmatch "Create a SourceLift-specific catalog-refresh skill if")

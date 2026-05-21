@@ -36,6 +36,6 @@ Restart Codex or open a new session after syncing so the skill index refreshes.
 
 ## External Skill Sources
 
-Primary vetted sources are OpenAI's skills catalog (`https://github.com/openai/skills`) and the built-in `$skill-installer` curated listing. Use `agentskills.io` / `agentskills/agentskills` as the format specification, Anthropic's `anthropics/skills` repository as an upstream reference with compatibility review, and GitHub's Copilot skill docs as ecosystem context.
+Primary vetted sources are OpenAI's skills catalog (`https://github.com/openai/skills`) and the built-in `$skill-installer` curated listing. Use `agentskills.io` / `agentskills/agentskills` as the format specification, Anthropic's `anthropics/skills` repository as an upstream reference with compatibility review, and GitHub's Copilot skill docs plus `github/awesome-copilot` as GitHub ecosystem context with per-skill inspection.
 
 Treat broad directories such as `VoltAgent/awesome-agent-skills` and `awesomeskills.dev` as discovery-only lead sources. Do not treat `officialskills.sh` as vetted or official; entries found there require original-repo inspection and pinned provenance before any recommendation.
