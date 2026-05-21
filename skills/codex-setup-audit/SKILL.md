@@ -106,6 +106,9 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 **Avoid**
 - [mechanism] What not to add yet - why.
 
+**Model Plan**
+1. ...
+
 **Discuss Before Installing**
 1. ...
 

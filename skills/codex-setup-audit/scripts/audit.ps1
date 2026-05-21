@@ -20,7 +20,7 @@ function Read-Text($LiteralPath, $MaxChars = 40000) {
 }
 
 function Add-Rec($Bucket, $Mechanism, $Title, $Reason, $Benefit, $Safety = "", $FitEvidence = "", $Confirmation = "") {
-    if (-not $FitEvidence) { $FitEvidence = "Detected by repo inventory and $Mechanism recommendation heuristics." }
+    if (-not $FitEvidence) { $FitEvidence = Get-DefaultFitEvidence $Mechanism }
     $script:recommendations[$Bucket] += [ordered]@{
         mechanism = $Mechanism
         title = $Title
@@ -40,7 +40,8 @@ function Get-RiskProfile() {
     if (-not $signals.hasTests) { $risks += "weak mechanical verification" }
     if ($signals.hasCi) { $risks += "CI/release surface" }
     if ($risks.Count -eq 0) { return "low: lightweight repo with no major automation or data-risk signals detected" }
-    return "moderate: " + ($risks -join ", ")
+    $level = if ($risks.Count -ge 3) { "elevated" } else { "moderate" }
+    return "${level}: " + ($risks -join ", ")
 }
 
 function Get-ModelFit() {
@@ -73,7 +74,7 @@ function Get-SafeSourcePolicy() {
         "Prefer OpenAI skills catalog and `$skill-installer when the confirmed target is Codex.",
         "Use Agent Skills, Anthropic skills, and GitHub Copilot skill docs as reference or compatibility sources with review.",
         "Treat broad community directories as discovery-only and inspect original repos before recommending.",
-        "Reject `officialskills.sh` as a vetted source."
+        'Reject `officialskills.sh` as a vetted source.'
     )
 }
 
@@ -88,15 +89,20 @@ function Get-DiscussionQuestions() {
         $questions += "How much autonomy is acceptable: read-only recommendations, proposed patches, or scheduled/background work?"
     }
     $questions += "Should model use optimize for cost/speed, strongest review quality, or a tiered plan by task risk?"
-    return $questions | Select-Object -First 4
+    return $questions
 }
 
 function Get-SetupPlan() {
     if ($signals.looksLikeSourceLift) {
+        $skillStep = if ($signals.hasSourceLiftSkill) {
+            'Use `$sourcelift-catalog-refresh` for future catalog refresh, workbook QA, pricing review, and UI proof work.'
+        } else {
+            "Create a SourceLift-specific catalog-refresh skill only if this workflow will repeat."
+        }
         return @(
             "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
             "Write or update AGENTS.md/rules with source-catalog boundaries, verification commands, and raw/generated file policy.",
-            "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
+            $skillStep,
             "Run the catalog build, JSON/workbook checks, and one UI smoke workflow before adding hooks or automations."
         )
     }
@@ -121,8 +127,23 @@ function Get-VerifyPlan() {
     } else {
         $verify += "Run the minimal verification command defined during setup."
     }
-    $verify += "Re-run `audit.ps1 -Json` and confirm selected recommendations, discussion questions, and avoid-list entries still match the repo."
+    $verify += 'Re-run `audit.ps1 -Json` and confirm selected recommendations, discussion questions, and avoid-list entries still match the repo.'
     return $verify
+}
+
+function Get-DefaultFitEvidence($Mechanism) {
+    $evidence = @()
+    if ($signals.looksLikeSourceLift) { $evidence += "SourceLift/Great Homes Source signals in README/docs" }
+    if ($signals.hasStaticApp) { $evidence += "static app files detected" }
+    if ($signals.hasPackageJson) { $evidence += "package.json detected" }
+    if ($signals.hasFrontendDeps) { $evidence += "frontend dependencies detected" }
+    if ($signals.hasBackendDeps) { $evidence += "backend dependencies detected" }
+    if ($signals.hasTypeScript) { $evidence += "TypeScript detected" }
+    if ($signals.hasNodeTests -or $signals.hasPythonQuality -or $signals.hasTests) { $evidence += "test or quality tooling detected" }
+    if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) { $evidence += "existing hook/plugin-hook config detected" }
+    if (-not $signals.hasTests) { $evidence += "no tests detected" }
+    if (-not $evidence) { $evidence += "repo inventory matched $Mechanism recommendation heuristics" }
+    return "Mechanism: $Mechanism. Signals: " + (($evidence | Select-Object -Unique) -join "; ")
 }
 
 function Test-FocusMatch($Recommendation) {
@@ -312,7 +333,7 @@ if ($signals.codexHooksEnabled -and $signals.codexPluginHooksEnabled -and $signa
 }
 
 if ($signals.isSmallRepo) {
-Add-Rec "Avoid" "subagent" "Do not create a permanent large-codebase reviewer yet" `
+    Add-Rec "Avoid" "subagent" "Do not create a permanent large-codebase reviewer yet" `
         "The sampled repo is small, so a persistent reviewer subagent would be more overhead than leverage." `
         "Keeps context and coordination simple." `
         "Use ad hoc review agents only for high-risk changes or independent investigations."
@@ -333,12 +354,6 @@ $profileType = if ($signals.looksLikeSourceLift) {
     "Python project"
 } else {
     "mixed or lightweight repository"
-}
-
-$sourceLiftNextStep = if ($signals.hasSourceLiftSkill) {
-        "Use `$sourcelift-catalog-refresh` for future catalog refresh, workbook QA, pricing review, and UI proof work."
-} else {
-    "Create a SourceLift-specific catalog-refresh skill if this workflow will repeat."
 }
 
 $report = [ordered]@{
@@ -371,13 +386,7 @@ $report = [ordered]@{
     }
     recommendations = $recommendations
     discussBeforeInstalling = @(Get-DiscussionQuestions)
-    implementationPlan = @(
-        "Discuss and confirm target AI clients, autonomy level, model tiering, and active workflows before installing anything.",
-        "Use `/init` or a manual pass to write a short AGENTS.md/rules file for repo boundaries and verification.",
-        $sourceLiftNextStep,
-        "Keep hooks lightweight; use explicit verification for builds, tests, and visual QA."
-    )
-    setupPlan = @(Get-SetupPlan)
+    implementationPlan = @(Get-SetupPlan)
     verifyPlan = @(Get-VerifyPlan)
 }
 
