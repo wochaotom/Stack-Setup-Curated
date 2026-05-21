@@ -20,15 +20,7 @@ function Read-Text($LiteralPath, $MaxChars = 40000) {
 }
 
 function Add-Rec($Bucket, $Mechanism, $Title, $Reason, $Benefit, $Safety = "", $FitEvidence = "", $Confirmation = "") {
-    if (-not $FitEvidence) { $FitEvidence = $Reason }
-    if (-not $Confirmation) {
-        $Confirmation = switch ($Bucket) {
-            "Immediate" { "Confirm before implementation; report is read-only by default." }
-            "Optional" { "Confirm this workflow is active before adding setup." }
-            "Avoid" { "Do not implement unless project signals change." }
-            default { "Confirm with the user before changing setup." }
-        }
-    }
+    if (-not $FitEvidence) { $FitEvidence = "Detected by repo inventory and $Mechanism recommendation heuristics." }
     $script:recommendations[$Bucket] += [ordered]@{
         mechanism = $Mechanism
         title = $Title
@@ -78,7 +70,7 @@ function Get-ModelPlan() {
 
 function Get-SafeSourcePolicy() {
     return @(
-        "Prefer OpenAI skills catalog and `$skill-installer for Codex installs.",
+        "Prefer OpenAI skills catalog and `$skill-installer when the confirmed target is Codex.",
         "Use Agent Skills, Anthropic skills, and GitHub Copilot skill docs as reference or compatibility sources with review.",
         "Treat broad community directories as discovery-only and inspect original repos before recommending.",
         "Reject `officialskills.sh` as a vetted source."
@@ -114,6 +106,23 @@ function Get-SetupPlan() {
         "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
         "Run the listed verification commands and one representative workflow before adding hooks or automations."
     )
+}
+
+function Get-VerifyPlan() {
+    $verify = @()
+    if ($signals.looksLikeSourceLift) {
+        $verify += "Run the catalog build command from the repo README or project rules."
+        $verify += "Check generated catalog JSON and workbook outputs exist and parse cleanly."
+        $verify += "Run one local UI smoke check if catalog UI files changed."
+    } elseif ($signals.hasNodeTests) {
+        $verify += "Run the package test script and any detected typecheck/lint script."
+    } elseif ($signals.hasPythonQuality) {
+        $verify += "Run pytest and any configured Ruff/mypy/pyright checks."
+    } else {
+        $verify += "Run the minimal verification command defined during setup."
+    }
+    $verify += "Re-run `audit.ps1 -Json` and confirm selected recommendations, discussion questions, and avoid-list entries still match the repo."
+    return $verify
 }
 
 function Test-FocusMatch($Recommendation) {
@@ -327,7 +336,7 @@ $profileType = if ($signals.looksLikeSourceLift) {
 }
 
 $sourceLiftNextStep = if ($signals.hasSourceLiftSkill) {
-    "Use `$sourcelift-catalog-refresh` for future catalog refresh, workbook QA, pricing review, and UI proof work."
+        "Use `$sourcelift-catalog-refresh` for future catalog refresh, workbook QA, pricing review, and UI proof work."
 } else {
     "Create a SourceLift-specific catalog-refresh skill if this workflow will repeat."
 }
@@ -362,13 +371,14 @@ $report = [ordered]@{
     }
     recommendations = $recommendations
     discussBeforeInstalling = @(Get-DiscussionQuestions)
-    nextSetupPass = @(
+    implementationPlan = @(
         "Discuss and confirm target AI clients, autonomy level, model tiering, and active workflows before installing anything.",
         "Use `/init` or a manual pass to write a short AGENTS.md/rules file for repo boundaries and verification.",
         $sourceLiftNextStep,
         "Keep hooks lightweight; use explicit verification for builds, tests, and visual QA."
     )
     setupPlan = @(Get-SetupPlan)
+    verifyPlan = @(Get-VerifyPlan)
 }
 
 if ($Json) {
@@ -391,10 +401,15 @@ Write-Output "- Files sampled: $($report.detected.filesSampled)"
 Write-Output "- Dirty worktree: $($report.detected.dirtyWorktree)"
 Write-Output "- Risk profile: $($report.detected.riskProfile)"
 Write-Output "- Model fit: $($report.detected.modelFit)"
-Write-Output "- Safe source policy: $($report.detected.safeSourcePolicy -join ' ')"
 Write-Output "- Existing Codex hooks: hooks=$($report.detected.existingCodex.hooks), plugin_hooks=$($report.detected.existingCodex.pluginHooks), Sendbird=$($report.detected.existingCodex.sendbird)"
 if ($report.detected.gaps.Count -gt 0) {
     Write-Output "- Gaps: $($report.detected.gaps -join '; ')"
+}
+
+Write-Output ""
+Write-Output "**Safe Source Policy**"
+foreach ($policy in $report.detected.safeSourcePolicy) {
+    Write-Output "- $policy"
 }
 
 foreach ($bucket in @("Immediate", "Optional", "Avoid")) {
@@ -427,13 +442,13 @@ for ($i = 0; $i -lt $report.discussBeforeInstalling.Count; $i++) {
 }
 
 Write-Output ""
-Write-Output "**Next Setup Pass**"
-for ($i = 0; $i -lt $report.nextSetupPass.Count; $i++) {
-    Write-Output "$($i + 1). $($report.nextSetupPass[$i])"
+Write-Output "**Implementation Plan**"
+for ($i = 0; $i -lt $report.implementationPlan.Count; $i++) {
+    Write-Output "$($i + 1). $($report.implementationPlan[$i])"
 }
 
 Write-Output ""
 Write-Output "**Verify Setup**"
-for ($i = 0; $i -lt $report.setupPlan.Count; $i++) {
-    Write-Output "$($i + 1). $($report.setupPlan[$i])"
+for ($i = 0; $i -lt $report.verifyPlan.Count; $i++) {
+    Write-Output "$($i + 1). $($report.verifyPlan[$i])"
 }

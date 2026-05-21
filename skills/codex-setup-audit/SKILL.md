@@ -63,9 +63,9 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
    - fit evidence
    - user confirmation needed, if any
 8. End with a staged setup plan:
-   - `Discuss`: 2-4 questions that decide the final stack
-   - `Plan`: ordered implementation steps after the user confirms
-   - `Verify`: commands or checks proving the setup works
+   - `Discuss Before Installing`: 2-4 questions that decide the final stack
+   - `Implementation Plan`: ordered implementation steps after the user confirms
+   - `Verify Setup`: commands or checks proving the setup works
 
 ## External Skill Discovery
 
@@ -109,10 +109,13 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 **Discuss Before Installing**
 1. ...
 
-**Next Setup Pass**
+**Implementation Plan**
 1. ...
 2. ...
 3. ...
+
+**Verify Setup**
+1. ...
 ```
 
 ## Recommendation Heuristics
@@ -132,7 +135,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Fast/cheap model: use for inventory, deterministic script edits, fixture generation, and narrow checks.
 - Strong coding model: use for implementation, refactors, test repair, and setup scripts that touch several files.
 - Strongest/review model: use for architecture tradeoffs, security-sensitive setup, high-blast-radius automation, and final review.
-- Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Do not hard-code one vendor when the repo could use Codex, Claude Code, GitHub Copilot, or another Agent Skills client safely.
+- Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Be Codex-first for Codex installs, but do not hard-code one vendor when the user confirms the repo should support Claude Code, GitHub Copilot, or another Agent Skills client safely.
 - Do not recommend a more expensive or high-autonomy model when a deterministic hook, local command, or smaller model would satisfy the workflow.
 
 ## Red Flags
