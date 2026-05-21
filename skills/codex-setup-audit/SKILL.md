@@ -53,9 +53,16 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 
 ## External Skill Discovery
 
-- Treat `officialskills.sh` and `VoltAgent/awesome-agent-skills` as discovery indexes, not trusted install sources.
+- Use this source index when looking for skills to recommend:
+  - **Qualified: OpenAI skills catalog** - `https://github.com/openai/skills`, especially `skills/.system` and `skills/.curated`, is the primary Codex source. `.system` skills are bundled with Codex; `.curated` skills are installable by name through `$skill-installer`.
+  - **Qualified: OpenAI skill-installer curated listing** - `$skill-installer` lists from `https://github.com/openai/skills/tree/main/skills/.curated` by default. Prefer it over hand-built lists when recommending Codex skills.
+  - **Qualified: Agent Skills standard** - `https://agentskills.io/` and `https://github.com/agentskills/agentskills` are authoritative for format, structure, progressive disclosure, and portability. Use them as specification references, not as a vetted install catalog.
+  - **Qualified with caveat: Anthropic skills repository** - `https://github.com/anthropics/skills` is an official upstream reference for Agent Skills patterns and Claude document skills. Treat it as reference material or a candidate source that still needs Codex compatibility review.
+  - **Qualified with caveat: GitHub Copilot agent skills docs** - GitHub's official Copilot docs and `gh skill` workflow are useful for cross-agent compatibility and GitHub-hosted skill discovery, but are not a Codex-curated install source.
+  - **Discovery-only: VoltAgent/awesome-agent-skills and awesomeskills.dev** - useful for finding vendor or community leads. Never recommend installation from these directories without inspecting the original repository and pinning provenance.
+  - **Rejected as vetted source: officialskills.sh** - do not call it official, trusted, or vetted. Treat any entry found there as an unverified lead only; current public trust signals and third-party maintenance claims are not enough for qualified-source status.
 - Prefer first-party vendor repositories and the built-in `skill-installer` curated OpenAI source when available.
-- Before recommending installation from any external index, inspect the original GitHub repository, `SKILL.md`, scripts, hooks, install steps, network calls, and permissions.
+- Before recommending installation from any discovery-only index, inspect the original GitHub repository, `SKILL.md`, scripts, hooks, install steps, network calls, and permissions.
 - Pin external skills to a commit/ref when possible, and record why the repo needs that skill.
 - Never recommend installing a skill solely because it is listed in a directory.
 
