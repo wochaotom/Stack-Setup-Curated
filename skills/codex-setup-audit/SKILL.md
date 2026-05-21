@@ -11,6 +11,8 @@ Produce a read-only setup report for a repository that matches the Claude Code S
 
 Baseline reference: `https://claude.com/plugins/claude-code-setup` analyzes codebases and recommends Claude Code automations across MCP servers, skills, hooks, subagents, and slash commands. This skill must go further for Codex by adding safe-source qualification, user-fit discussion, concrete setup plans, model guidance, AGENTS.md/rules, local environment setup, automations, GitHub integration, Cursor support, Antigravity support, and avoid-list reasoning.
 
+Vault-derived operating lens: treat skills, MCP servers, hooks, rules, memories, subagents, verifiers, logs, and client-specific config as one agent harness. A setup audit should inspect that harness before recommending new pieces.
+
 ## Hard Rules
 
 - Default to read-only. Do not edit repo files, install tools, enable plugins, create hooks, or mutate config unless the user explicitly asks for implementation after the report.
@@ -51,18 +53,27 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
    - maintenance fit: how often the setup will be used and who owns it
    - model fit: cheap/fast model for deterministic checks, stronger coding model for implementation, strongest/review model for architecture, security, or long-running refactors
    - user fit: what must be confirmed with the user before installation or durable config
-6. Refine the audit output in this order:
+6. Audit the harness around the model:
+   - context surfaces: AGENTS.md, CLAUDE.md, `.cursor/rules`, Antigravity rules, docs, plans, and client-specific instructions
+   - tools and MCP: exact tools exposed, owner, auth scope, read/write boundary, logging, and whether a narrower plugin/CLI/script would be safer
+   - state and memory: durable files, generated outputs, raw sources, knowledge bases, session logs, and whether state is outside the agent's write authority where needed
+   - contracts and verifiers: tests, lint, typecheck, build, visual QA, UAT, schema checks, reviewer checks, and command timing
+   - permission gates: human approval before config-mutating, network-heavy, auth, deploy, external-send, raw-data, secret-bearing, or hard-to-reverse actions
+   - logs and traces: CI logs, hook logs, MCP/tool call logs, screenshots, diffs, source-health reports, and failure records
+   - stop and rollback rules: dirty-worktree handling, branch/worktree policy, retry budget, escalation point, and revert/compensation path
+   - review layer: cross-model, reviewer-agent, or fresh-context review for high-blast-radius setup
+7. Refine the audit output in this order:
    - `Immediate`: changes or setup that would clearly help now.
    - `Optional`: useful only if the workflow is active.
    - `Avoid`: tempting setup that would add noise, cost, risk, or duplicate existing tools.
-7. For every recommendation include:
+8. For every recommendation include:
    - target mechanism: plugin/app, MCP, skill, hook, subagent, command, automation, rule, or local environment
    - reason
    - expected benefit
    - safety notes or prerequisites
    - fit evidence
    - user confirmation needed, if any
-8. End with a staged setup plan:
+9. End with a staged setup plan:
    - `Discuss Before Installing`: 2-4 questions that decide the final stack
    - `Implementation Plan`: ordered implementation steps after the user confirms
    - `Verify Setup`: commands or checks proving the setup works
@@ -99,6 +110,16 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Model fit:
 - Gaps:
 
+**Harness Audit**
+- Context:
+- Tools/MCP:
+- State/memory:
+- Contracts/verifiers:
+- Permission gates:
+- Logs/traces:
+- Stop/rollback:
+- Review layer:
+
 **Immediate**
 - [mechanism] Recommendation - reason and benefit.
 
@@ -126,14 +147,15 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 ## Recommendation Heuristics
 
 - Plugin/app: recommend first when Codex already has a curated plugin or connector for the need.
-- MCP: recommend only when a stable external system is actively used by the project, such as GitHub, Slack, Linear, Google Drive, databases, logs, or browser automation. Prefer a CLI or built-in tool when it is lower-context and safer.
-- Skills: recommend for repeatable judgment-heavy workflows, not one-off instructions. Prefer project-agnostic local skills unless the behavior is specific to one repo.
+- MCP: recommend only when a stable external system is actively used by the project, such as GitHub, Slack, Linear, Google Drive, databases, logs, or browser automation. Prefer a CLI or built-in tool when it is lower-context and safer. For shared or config-mutating MCP, require owner, auth scope, read/write boundary, logging, secrets/PII handling, and tool-quality metadata.
+- Skills: recommend for repeatable judgment-heavy workflows, not one-off instructions. Prefer project-agnostic local skills unless the behavior is specific to one repo. A good skill is a compact SOP with progressive disclosure, references/scripts for bulky or deterministic work, activation/output checks, and a maintenance path.
 - Hooks: recommend for cheap, deterministic checks at lifecycle boundaries. Avoid noisy hooks that run slow tests or require network access on every prompt.
 - Subagents: recommend for independent investigations, reviews, or disjoint implementation slices. Do not propose subagents for tightly coupled work.
 - Slash commands: recommend for short, repeatable operator actions with predictable inputs.
 - Automations: recommend only for recurring monitoring, scheduled reports, or follow-ups.
 - AGENTS.md/rules: recommend when the repo needs persistent local conventions, architecture boundaries, commands, or safety rules.
 - Local environment: recommend when builds need stable setup commands, local server commands, or generated artifacts.
+- Cross-model/reviewer pass: recommend only for security-sensitive setup, high-autonomy automation, external actions, broad MCP/tool exposure, or expensive long-running workflows.
 
 ## Client Guidance
 
@@ -143,6 +165,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Cursor: map persistent project guidance to `.cursor/rules`, MCP integration to Cursor's `mcp.json` / `cursor-agent mcp` flow, and avoid copying Codex hooks into Cursor unless Cursor's current docs support the same lifecycle.
 - Antigravity: map setup to Antigravity's Agent/Manager workflow, MCP store or `mcp_config.json`, permission controls, and CLI plugin bundles containing skills, agents, rules, MCP servers, and hooks.
 - Cross-client plans should name which artifacts are portable and which are client-specific. Do not imply one client's hook/rule/plugin format works in another client without documentation evidence.
+- For MCP-backed workflows, treat the MCP as the capability and the skill/rule as the recipe for using it: what to open, what evidence to collect, when to stop, and what output to produce.
 
 ## Model Guidance
 
@@ -151,6 +174,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Strongest/review model: use for architecture tradeoffs, security-sensitive setup, high-blast-radius automation, and final review.
 - Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Be Codex-first for Codex installs, but do not hard-code one vendor when the user confirms the repo should support Claude Code, GitHub Copilot, Cursor, Antigravity, or another Agent Skills client safely.
 - Do not recommend a more expensive or high-autonomy model when a deterministic hook, local command, or smaller model would satisfy the workflow.
+- When comparing clients or models, evaluate the whole harness: context assembly, action boundary, verification loop, state persistence, review surface, permission model, and codebase cognition.
 
 ## Red Flags
 
@@ -160,5 +184,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Secrets in repo, logs, hooks, or command history.
 - Broad MCP access where a narrower connector or command would work.
 - Long-running or network-heavy checks attached to every user prompt.
+- MCP servers, terminal hosts, or plugins that auto-register tools/hooks without a config diff and permission review.
 - Recommendations that say "install everything" instead of explaining why a repo specifically needs it.
 - Skills discovered through third-party indexes without source review, pinned provenance, or a project-specific reason.
+- Skills that are prompt dumps, lack negative triggers, lack verification, or promote one project's SPEC into global behavior.

@@ -88,6 +88,39 @@ function Get-ClientPlan() {
     )
 }
 
+function Get-HarnessAudit() {
+    $context = "Context: check AGENTS.md/CLAUDE.md/.cursor/rules/Antigravity rules and keep always-loaded guidance as a router to deeper docs."
+    if (-not (Test-Path -LiteralPath (Join-Path $root "AGENTS.md"))) {
+        $context += " Gap: no AGENTS.md detected."
+    }
+
+    $tools = "Tools/MCP: prefer narrow plugins, CLIs, or scripts; for MCP require owner, auth scope, read/write boundary, logging, secrets/PII handling, and tool-quality metadata."
+    if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) {
+        $tools += " Existing hook/plugin-hook config needs cache-path and side-effect review."
+    }
+
+    $state = "State/memory: preserve raw/generated boundaries, keep durable plans/logs path-addressable, and avoid adding memory systems without an active workflow."
+    if ($signals.looksLikeSourceLift) {
+        $state += " Catalog raw inputs should stay read-only unless explicitly approved."
+    }
+
+    $contracts = "Contracts/verifiers: require at least one cheap deterministic verification command before promoting hooks, automations, or background work."
+    if (-not $signals.hasTests) {
+        $contracts += " Gap: no tests detected."
+    }
+
+    return @(
+        $context,
+        $tools,
+        $state,
+        $contracts,
+        "Permission gates: human-gate config-mutating, network-heavy, auth, deploy, external-send, raw-data, secret-bearing, and hard-to-reverse actions.",
+        "Logs/traces: keep diffs, command output, CI/hook logs, screenshots, MCP/tool-call logs, and source-health reports inspectable after the run.",
+        "Stop/rollback: define dirty-worktree handling, branch/worktree policy, retry budget, escalation point, and revert or compensation path.",
+        "Review layer: use cross-model/reviewer or fresh-context review for high-blast-radius setup, broad MCP exposure, security-sensitive changes, or long-running automation."
+    )
+}
+
 function Get-DiscussionQuestions() {
     $questions = @()
     $questions += "Which AI clients should this repo actually support: Codex only, Claude Code parity, GitHub Copilot, Cursor, Antigravity, or cross-client Agent Skills?"
@@ -98,7 +131,7 @@ function Get-DiscussionQuestions() {
         $questions += "Which workflow hurts most today: onboarding, review, CI repair, docs, security, frontend QA, or release prep?"
         $questions += "How much autonomy is acceptable: read-only recommendations, proposed patches, or scheduled/background work?"
     }
-    $questions += "Should model use optimize for cost/speed, strongest review quality, or a tiered plan by task risk?"
+    $questions += "Should setup optimize for cost/speed, strongest review quality, or a tiered model plan, and which action classes need explicit approval gates?"
     return $questions
 }
 
@@ -139,6 +172,7 @@ function Get-VerifyPlan() {
         $verify += "Define a minimal repo verification command before implementing durable setup."
     }
     $verify += 'Re-run `audit.ps1 -Json` and confirm selected recommendations, discussion questions, and avoid-list entries still match the repo.'
+    $verify += "Run one high-risk setup through cross-model/reviewer or fresh-context review before enabling broad MCP, hooks, or scheduled automation."
     return $verify
 }
 
@@ -413,6 +447,7 @@ $report = [ordered]@{
         modelPlan = @(Get-ModelPlan)
         clientPlan = @(Get-ClientPlan)
         safeSourcePolicy = @(Get-SafeSourcePolicy)
+        harnessAudit = @(Get-HarnessAudit)
         existingCodex = [ordered]@{
             hooks = $signals.codexHooksEnabled
             pluginHooks = $signals.codexPluginHooksEnabled
@@ -460,6 +495,12 @@ Write-Output ""
 Write-Output "**Safe Source Policy**"
 foreach ($policy in $report.detected.safeSourcePolicy) {
     Write-Output "- $policy"
+}
+
+Write-Output ""
+Write-Output "**Harness Audit**"
+foreach ($item in $report.detected.harnessAudit) {
+    Write-Output "- $item"
 }
 
 foreach ($bucket in @("Immediate", "Optional", "Avoid")) {
