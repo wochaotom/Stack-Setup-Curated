@@ -86,7 +86,9 @@ $ciFiles = @($files | Where-Object {
 })
 
 $testFiles = @($files | Where-Object {
-    $_ -match "(^|[\\/])(test|tests|spec|__tests__)[\\/]" -or $_ -match "(test|spec)\.(js|jsx|ts|tsx|py|go|rs|cs)$"
+    $_ -match "(^|[\\/])(test|tests|spec|__tests__)[\\/]" -or
+    $_ -match "(test|spec)\.(js|jsx|ts|tsx|py|go|rs|cs)$" -or
+    $_ -match "(^|[\\/])[^\\/]*(test|spec)[^\\/]*\.(ps1|psm1)$"
 } | Select-Object -First 200)
 
 $docsFiles = @($files | Where-Object {

@@ -23,6 +23,7 @@ $yaml = Get-Content -LiteralPath $yamlPath -Raw
 $auditText = & $auditPath -Path $Path
 $auditJson = & $auditPath -Path $Path -Json | ConvertFrom-Json
 $hookFocus = & $auditPath -Path $Path -Focus hooks
+$inventoryJson = & (Join-Path $scriptDir "inventory.ps1") -Path $Path | ConvertFrom-Json
 
 Add-Check "skill frontmatter" ($skill -match "^---" -and $skill -match "name:\s*codex-setup-audit" -and $skill -match "description:\s*Use when")
 Add-Check "ui metadata" ($yaml -match "display_name: `"Codex Setup Audit`"" -and $yaml -match "\$codex-setup-audit")
@@ -40,6 +41,8 @@ Add-Check "github community index caveated" ($skill -match "github/awesome-copil
 Add-Check "audit emits risk and model fit" ($auditText -match "Risk profile:" -and $auditText -match "Model fit:")
 Add-Check "audit emits safe source policy" ($auditText -match "Safe Source Policy" -and $auditText -match 'Reject `?officialskills\.sh`?')
 Add-Check "audit emits harness audit" ($auditText -match "Harness Audit" -and $auditText -match "Tools/MCP:" -and $auditText -match "human-gate" -and $auditText -match "cross-model/reviewer")
+Add-Check "powershell skill tests detected" (@($inventoryJson.testFiles | Where-Object { $_ -match "self_test\.ps1|fixture_test\.ps1" }).Count -ge 2)
+Add-Check "audit does not report false missing tests" (@($auditJson.detected.gaps | Where-Object { $_ -eq "No tests detected" }).Count -eq 0 -and $auditJson.detected.riskProfile -notmatch "weak mechanical verification" -and @($auditJson.detected.harnessAudit | Where-Object { $_ -match "no tests detected" }).Count -eq 0)
 Add-Check "audit emits model plan" ($auditText -match "Model Plan" -and $auditText -match "Fast model:" -and $auditText -match "Strongest/review model:")
 Add-Check "audit emits client plan" ($auditText -match "Client Plan" -and $auditText -match "\.cursor/rules" -and $auditText -match "Antigravity:")
 Add-Check "audit emits discussion plan" ($auditText -match "Discuss Before Installing" -and $auditText -match "target AI clients" -and $auditText -match "Cursor" -and $auditText -match "Antigravity")
