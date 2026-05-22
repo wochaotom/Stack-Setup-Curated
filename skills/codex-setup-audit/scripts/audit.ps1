@@ -36,7 +36,7 @@ function Get-RiskProfile() {
     $risks = @()
     if ($signals.hasDirtyWorktree) { $risks += "dirty worktree" }
     if ($signals.hasExcelInputs -or $signals.looksLikeSourceLift) { $risks += "raw/generated data boundary" }
-    if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) { $risks += "hook execution" }
+    if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) { $risks += "host hook/plugin execution" }
     if (-not $signals.hasTests) { $risks += "weak mechanical verification" }
     if ($signals.hasCi) { $risks += "CI/release surface" }
     if ($risks.Count -eq 0) { return "low: lightweight repo with no major automation or data-risk signals detected" }
@@ -212,7 +212,8 @@ function Get-DefaultFitEvidence($Mechanism) {
             @("repo inventory matched $Mechanism recommendation heuristics")
         }
     }
-    if ($signals.looksLikeSourceLift) { $evidence += "SourceLift/Great Homes Source signals in README/docs" }
+    if ($signals.looksLikeSourceLift) { $evidence += "SourceLift/Great Homes Source text plus catalog structure detected" }
+    if ($signals.hasLocalSkillBundle) { $evidence += "local Agent Skills bundle detected under skills/" }
     if ($signals.hasFrontendDeps) { $evidence += "frontend dependencies detected" }
     if ($signals.hasBackendDeps) { $evidence += "backend dependencies detected" }
     if ($signals.hasTypeScript) { $evidence += "TypeScript detected" }
@@ -254,6 +255,19 @@ if ($packageText.Trim().Length -gt 0) {
     try { $package = $packageText | ConvertFrom-Json } catch { $package = $null }
 }
 
+$localSkillFiles = @()
+if (Test-Path -LiteralPath (Join-Path $root "skills")) {
+    $localSkillFiles = @(Get-ChildItem -LiteralPath (Join-Path $root "skills") -Recurse -File -Filter "SKILL.md" -ErrorAction SilentlyContinue)
+}
+$hasLocalSkillBundle = $localSkillFiles.Count -gt 0
+$hasStaticApp = Test-Path -LiteralPath (Join-Path $root "app\index.html")
+$hasCatalogBuilder = Test-Path -LiteralPath (Join-Path $root "scripts\build_catalog.py")
+$hasExcelInputs = [bool]((Get-ChildItem -LiteralPath $root -Recurse -File -Filter "*.xlsx" -ErrorAction SilentlyContinue | Select-Object -First 1))
+$hasCatalogData = (Test-Path -LiteralPath (Join-Path $root "app\data\catalog.json")) -or (Test-Path -LiteralPath (Join-Path $root "outputs\great_homes_source_catalog.xlsx"))
+$hasSourceLiftPlan = Test-Path -LiteralPath (Join-Path $root "_knowledge_base\plan-source-price-platform-v5-20260510.md")
+$sourceLiftTextSignal = $allText -match "SourceLift|Great Homes Source|Moorizon|source catalog|line sheet|quote-ready"
+$sourceLiftStructuralSignal = $hasCatalogBuilder -or $hasExcelInputs -or $hasCatalogData -or $hasSourceLiftPlan
+
 $depNames = @()
 $scriptNames = @()
 if ($package) {
@@ -271,9 +285,10 @@ $signals = [ordered]@{
     isGitHub = [bool](@($inventory.git.remotes) -match "github\.com")
     isSmallRepo = [int]$inventory.counts.filesSampled -lt 100
     hasDirtyWorktree = [bool](@($inventory.git.statusShort) | Where-Object { $_ -match "^( M|M |A |D |\?\?)" })
-    hasStaticApp = Test-Path -LiteralPath (Join-Path $root "app\index.html")
-    hasCatalogBuilder = Test-Path -LiteralPath (Join-Path $root "scripts\build_catalog.py")
-    hasExcelInputs = [bool]((Get-ChildItem -LiteralPath $root -Recurse -File -Filter "*.xlsx" -ErrorAction SilentlyContinue | Select-Object -First 1))
+    hasLocalSkillBundle = $hasLocalSkillBundle
+    hasStaticApp = $hasStaticApp
+    hasCatalogBuilder = $hasCatalogBuilder
+    hasExcelInputs = $hasExcelInputs
     hasTests = [bool](@($inventory.testFiles).Count -gt 0)
     hasCi = [bool](@($inventory.ciFiles).Count -gt 0)
     hasDocsPlans = [bool](@($inventory.docsFiles).Count -gt 0)
@@ -284,7 +299,7 @@ $signals = [ordered]@{
     hasNodeLint = [bool]($scriptNames -match "lint|format") -or [bool]($depNames -match "^(eslint|prettier)$")
     hasNodeTests = [bool]($scriptNames -match "test|vitest|jest|playwright") -or [bool]($depNames -match "^(vitest|jest|@playwright/test)$")
     hasPythonQuality = [bool]($pyprojectText -match "\[tool\.(ruff|black|pytest|mypy|pyright)")
-    looksLikeSourceLift = $allText -match "SourceLift|Great Homes Source|Moorizon|source catalog|line sheet|quote-ready"
+    looksLikeSourceLift = $sourceLiftTextSignal -and $sourceLiftStructuralSignal
     mentionsPricingRules = $allText -match "pricing|margin|markup|quote"
     mentionsProvenance = $allText -match "provenance|confidence|source health|raw-to-canonical"
     codexHooksEnabled = [bool](@($inventory.codex.configSignals.features) -match "hooks\s*=\s*true")
@@ -351,6 +366,13 @@ if ($signals.looksLikeSourceLift) {
         "Avoids noisy hook failures and slow prompt submission." `
         "Prefer explicit commands or post-change verification."
 } else {
+    if ($signals.hasLocalSkillBundle -and -not (Test-Path -LiteralPath (Join-Path $root "AGENTS.md"))) {
+        Add-Rec "Immediate" "AGENTS.md/rules" "Add project rules for skill-bundle safety" `
+            "This repo stores local Agent Skills and deployment scripts, so the repo copy should be the source of truth." `
+            "Prevents installed-cache drift, records the verification commands, and keeps bundled skill names from being treated as target-repo identity." `
+            "Keep rules short: repo skills are authoritative, installed copies are derived, run self/fixture tests before sync, and separate host Codex context from target repo evidence."
+    }
+
     if ($signals.isGitHub) {
         Add-Rec "Immediate" "plugin/app" "Use GitHub integration for PR and issue work" `
             "The repo remote is on GitHub." `
@@ -420,6 +442,8 @@ if ($signals.isSmallRepo) {
 
 $profileType = if ($signals.looksLikeSourceLift) {
     "SourceLift / Great Homes Source catalog-cleanup prototype"
+} elseif ($signals.hasLocalSkillBundle) {
+    "Codex skill bundle"
 } elseif ($signals.hasStaticApp) {
     "static web app"
 } elseif ($inventory.manifests.javascript) {
@@ -486,7 +510,7 @@ Write-Output "- Files sampled: $($report.detected.filesSampled)"
 Write-Output "- Dirty worktree: $($report.detected.dirtyWorktree)"
 Write-Output "- Risk profile: $($report.detected.riskProfile)"
 Write-Output "- Model fit: $($report.detected.modelFit)"
-Write-Output "- Existing Codex hooks: hooks=$($report.detected.existingCodex.hooks), plugin_hooks=$($report.detected.existingCodex.pluginHooks), Sendbird=$($report.detected.existingCodex.sendbird)"
+Write-Output "- Host Codex context: hooks=$($report.detected.existingCodex.hooks), plugin_hooks=$($report.detected.existingCodex.pluginHooks), Sendbird=$($report.detected.existingCodex.sendbird)"
 if ($report.detected.gaps.Count -gt 0) {
     Write-Output "- Gaps: $($report.detected.gaps -join '; ')"
 }

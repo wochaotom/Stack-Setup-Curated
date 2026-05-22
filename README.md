@@ -4,6 +4,7 @@ Local project copy of the Codex setup-audit skills.
 
 ## Contents
 
+- `AGENTS.md` - repo-local agent rules for treating this checkout as the skill source of truth.
 - `skills/codex-setup-audit` - read-only repo setup recommender for Codex plugins/apps, MCP, skills, hooks, subagents, commands, automations, rules, and local environment setup.
 - `skills/sourcelift-catalog-refresh` - SourceLift / Great Homes Source catalog-refresh workflow skill.
 - `skills/autoresearch` - third-party autonomous metric-loop skill from `uditgoenka/autoresearch`, installed from commit `98398ba5837ce74ca2ba888bc31456f2837cf33c`.
@@ -23,7 +24,7 @@ Restart Codex or open a new session after syncing so the skill index refreshes.
 ## Test
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\self_test.ps1 -Path D:\Projects\Shop_Lifter_NG
+& .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
 & .\skills\codex-setup-audit\scripts\fixture_test.ps1
 ```
 

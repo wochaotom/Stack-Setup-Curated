@@ -58,8 +58,14 @@ testpaths = ["tests"]
     Write-FixtureFile (Join-Path $pyRoot "service.py") "def ok(): return True"
     Write-FixtureFile (Join-Path $pyRoot "tests\test_service.py") "def test_ok(): assert True"
 
+    $sourceLiftRoot = Join-Path $tmpRoot "sourcelift-catalog"
+    Write-FixtureFile (Join-Path $sourceLiftRoot "README.md") "# SourceLift Catalog`nGreat Homes Source catalog cleanup with quote-ready line sheets."
+    Write-FixtureFile (Join-Path $sourceLiftRoot "scripts\build_catalog.py") "print('build catalog')"
+    Write-FixtureFile (Join-Path $sourceLiftRoot "raw\source.xlsx") "placeholder"
+
     $reactAudit = & $auditPath -Path $reactRoot
     $pyAudit = & $auditPath -Path $pyRoot
+    $sourceLiftAudit = & $auditPath -Path $sourceLiftRoot
 
     Add-Check "react browser recommendation" ($reactAudit -match "Use Browser")
     Add-Check "react docs mcp gated" ($reactAudit -match "versioned docs" -and $reactAudit -match "narrow docs MCP")
@@ -72,6 +78,7 @@ testpaths = ["tests"]
     Add-Check "python quality hooks gated" ($pyAudit -match "Ruff/pytest hooks" -and $pyAudit -match "command timing")
     Add-Check "python setup plan emitted" ($pyAudit -match "Discuss Before Installing" -and $pyAudit -match "Verify Setup")
     Add-Check "fixtures stay non-sourcelift" ($reactAudit -notmatch "SourceLift" -and $pyAudit -notmatch "SourceLift")
+    Add-Check "sourcelift fixture stays sourcelift" ($sourceLiftAudit -match "SourceLift / Great Homes Source catalog-cleanup prototype" -and $sourceLiftAudit -match "source-catalog safety")
 
     $failed = @($checks | Where-Object { -not $_.pass })
     [ordered]@{
