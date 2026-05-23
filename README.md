@@ -5,19 +5,30 @@ Local project copy of the Codex setup-audit skills.
 ## Contents
 
 - `AGENTS.md` - repo-local agent rules for treating this checkout as the skill source of truth.
+- `skills-lock.json` - committed SHA-256 manifest for every bundled skill file.
 - `skills/codex-setup-audit` - read-only repo setup recommender for Codex plugins/apps, MCP, skills, hooks, subagents, commands, automations, rules, and local environment setup.
 - `skills/sourcelift-catalog-refresh` - SourceLift / Great Homes Source catalog-refresh workflow skill.
 - `skills/autoresearch` - third-party autonomous metric-loop skill from `uditgoenka/autoresearch`, installed from commit `98398ba5837ce74ca2ba888bc31456f2837cf33c`.
 
 ## Install Or Sync
 
-Preferred sync path:
+Preferred sync path. This scans the repo skills, verifies `skills-lock.json`,
+reports installed-skill drift before overwrite, copies repo skills, verifies
+installed hashes, and runs installed setup-audit tests:
 
 ```powershell
 & .\scripts\sync_skills.ps1
 ```
 
-Manual fallback:
+After an intentional skill change, refresh the lockfile through the same guarded
+path:
+
+```powershell
+& .\scripts\sync_skills.ps1 -UpdateLock
+```
+
+Manual fallback only for emergency recovery after reviewing the scanner and
+lockfile state:
 
 ```powershell
 Copy-Item -LiteralPath .\skills\codex-setup-audit -Destination "$env:USERPROFILE\.codex\skills" -Recurse -Force
@@ -30,6 +41,7 @@ Restart Codex or open a new session after syncing so the skill index refreshes.
 ## Test
 
 ```powershell
+& .\scripts\scan_skills.ps1
 & .\scripts\harness_test.ps1
 & .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
 & .\skills\codex-setup-audit\scripts\fixture_test.ps1
@@ -39,6 +51,9 @@ Restart Codex or open a new session after syncing so the skill index refreshes.
 
 - Classification correctness: this repo audits as `Codex skill bundle`; SourceLift fixtures still audit as SourceLift.
 - Sync freshness: `sync_skills.ps1` copies all repo skills and verifies installed file hashes.
+- Repo integrity: `skills-lock.json` blocks unreviewed source-skill drift unless refreshed with `-UpdateLock`.
+- Installed tamper visibility: sync reports added, removed, or changed installed files before replacing them.
+- Malicious-content screen: `scan_skills.ps1` blocks direct prompt-injection directives, dynamic PowerShell execution, fetch-and-execute scripts, and credential-shaped secrets.
 - Verification coverage: harness, self, and fixture tests exit 0 before claiming the setup is healthy.
 - Context separation: audit output labels host Codex hooks/plugins separately from target repo evidence.
 
