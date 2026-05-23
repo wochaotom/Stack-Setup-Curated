@@ -7,6 +7,8 @@ as the source of truth.
 
 - Installed copies under `C:\Users\great\.codex\skills` are derived artifacts.
 - Prefer editing this repo first, then syncing to the installed skills directory.
+- Use `.\scripts\sync_skills.ps1` for sync; it prunes stale installed copies,
+  copies repo skills, verifies hashes, and runs installed setup-audit tests.
 - Do not treat installed cache or plugin paths as authoritative source.
 
 ## Verification
@@ -14,6 +16,7 @@ as the source of truth.
 Run these checks after changing `skills/codex-setup-audit`:
 
 ```powershell
+& .\scripts\harness_test.ps1
 & .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
 & .\skills\codex-setup-audit\scripts\fixture_test.ps1
 ```

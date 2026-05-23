@@ -11,7 +11,13 @@ Local project copy of the Codex setup-audit skills.
 
 ## Install Or Sync
 
-Copy skills into the active Codex skills directory:
+Preferred sync path:
+
+```powershell
+& .\scripts\sync_skills.ps1
+```
+
+Manual fallback:
 
 ```powershell
 Copy-Item -LiteralPath .\skills\codex-setup-audit -Destination "$env:USERPROFILE\.codex\skills" -Recurse -Force
@@ -24,9 +30,17 @@ Restart Codex or open a new session after syncing so the skill index refreshes.
 ## Test
 
 ```powershell
+& .\scripts\harness_test.ps1
 & .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
 & .\skills\codex-setup-audit\scripts\fixture_test.ps1
 ```
+
+## Harness Metrics
+
+- Classification correctness: this repo audits as `Codex skill bundle`; SourceLift fixtures still audit as SourceLift.
+- Sync freshness: `sync_skills.ps1` copies all repo skills and verifies installed file hashes.
+- Verification coverage: harness, self, and fixture tests exit 0 before claiming the setup is healthy.
+- Context separation: audit output labels host Codex hooks/plugins separately from target repo evidence.
 
 ## Run
 
