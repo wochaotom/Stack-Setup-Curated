@@ -28,6 +28,9 @@ $hookFocus = & $auditPath -Path $Path -Focus hooks
 $inventoryJson = & (Join-Path $scriptDir "inventory.ps1") -Path $Path | ConvertFrom-Json
 $conversionJson = $null
 $complexConversionJson = $null
+$unsupportedConversionJson = $null
+$blockedConversionExitCode = $null
+$unsupportedConversionExitCode = $null
 try {
     New-Item -ItemType Directory -Force -Path (Join-Path $tmpRoot "simple-skill") | Out-Null
     Set-Content -LiteralPath (Join-Path $tmpRoot "simple-skill\SKILL.md") -Encoding UTF8 -Value @'
@@ -54,12 +57,18 @@ Run `scripts/check.ps1` before reporting.
     Set-Content -LiteralPath (Join-Path $tmpRoot "complex-skill\scripts\check.ps1") -Encoding UTF8 -Value "Write-Output 'checked'"
     if (Test-Path -LiteralPath $convertPath) {
         $conversionJson = & $convertPath -SourcePath (Join-Path $tmpRoot "simple-skill") -Target "github-copilot" -OutputPath (Join-Path $tmpRoot "converted") -Json | ConvertFrom-Json
-        $complexConversionOutput = & $convertPath -SourcePath (Join-Path $tmpRoot "complex-skill") -Target "continue" -OutputPath (Join-Path $tmpRoot "blocked") -Json 2>$null
+        $psExe = (Get-Process -Id $PID).Path
+        $complexConversionOutput = & $psExe -NoProfile -File $convertPath -SourcePath (Join-Path $tmpRoot "complex-skill") -Target "continue" -OutputPath (Join-Path $tmpRoot "blocked") -Json 2>$null
+        $blockedConversionExitCode = $LASTEXITCODE
         $complexConversionJson = $complexConversionOutput | ConvertFrom-Json
+        $unsupportedConversionOutput = & $psExe -NoProfile -File $convertPath -SourcePath (Join-Path $tmpRoot "simple-skill") -Target "not-a-real-target" -OutputPath (Join-Path $tmpRoot "unsupported") -Json 2>$null
+        $unsupportedConversionExitCode = $LASTEXITCODE
+        $unsupportedConversionJson = $unsupportedConversionOutput | ConvertFrom-Json
     }
 } catch {
     $conversionJson = $null
     $complexConversionJson = $null
+    $unsupportedConversionJson = $null
 }
 
 Add-Check "skill frontmatter" ($skill -match "^---" -and $skill -match "name:\s*codex-setup-audit" -and $skill -match "description:\s*Use when")
@@ -96,6 +105,7 @@ Add-Check "unsafe opencode mirror absent" (@($auditJson.detected.platformCapabil
 Add-Check "converter script exists" (Test-Path -LiteralPath $convertPath)
 Add-Check "converter emits native skill" ($conversionJson.success -eq $true -and $conversionJson.status -eq "converted" -and @($conversionJson.generatedFiles | Where-Object { $_ -match "\.github[\\/]skills[\\/]portable-review[\\/]SKILL\.md$" }).Count -eq 1)
 Add-Check "converter blocks lossy complex conversion" ($complexConversionJson.success -eq $false -and $complexConversionJson.status -eq "blocked" -and $complexConversionJson.reason -match "supporting files")
+Add-Check "converter blocked and unsupported conversions exit nonzero" ($blockedConversionExitCode -ne 0 -and $unsupportedConversionExitCode -ne 0 -and $unsupportedConversionJson.success -eq $false -and $unsupportedConversionJson.status -eq "unsupported")
 Add-Check "json fit evidence populated" (@($auditJson.recommendations.Immediate + $auditJson.recommendations.Optional + $auditJson.recommendations.Avoid | Where-Object { -not $_.fitEvidence }).Count -eq 0)
 Add-Check "skill bundle profile" ($auditJson.detected.stack -eq "Codex skill bundle" -and $auditText -notmatch "catalog-cleanup prototype|source-catalog cleanup prototype|catalog build command")
 Add-Check "bundled skill names do not drive target fit" ($auditText -notmatch "existing SourceLift catalog-refresh skill|source-catalog safety|\$sourcelift-catalog-refresh")

@@ -204,6 +204,13 @@ function Write-Result($Result) {
     }
 }
 
+function Complete-Result($Result) {
+    Write-Result $Result
+    if (-not $Result.success) {
+        exit 1
+    }
+}
+
 function Write-InstructionFile($Skill, $TargetAdapter, $OutputRoot) {
     if ($Skill.hasSupportingFiles -and -not $AllowPartial) {
         return New-Result $false "blocked" $TargetAdapter "skill" $Skill.name @() "Target $($TargetAdapter.label) does not have a native skill folder adapter here; conversion would drop supporting files. Re-run with -AllowPartial only after manual review." $false $true $true
@@ -358,21 +365,21 @@ if ($ListTargets) {
 
 if (-not $SourcePath -or -not $Target) {
     $result = New-Result $false "blocked" $null "unknown" "" @() "SourcePath and Target are required unless -ListTargets is used." $false $true $true
-    Write-Result $result
+    Complete-Result $result
     return
 }
 
 $adapter = Get-TargetAdapter $Target
 if (-not $adapter) {
     $result = New-Result $false "unsupported" $null "unknown" "" @() "Unsupported target '$Target'. Use -ListTargets to inspect supported adapters." $false $true $true
-    Write-Result $result
+    Complete-Result $result
     return
 }
 
 $sourceFull = Get-FullPath $SourcePath
 if (-not (Test-Path -LiteralPath $sourceFull)) {
     $result = New-Result $false "blocked" $adapter "unknown" "" @() "Source path does not exist: $sourceFull" $false $true $true
-    Write-Result $result
+    Complete-Result $result
     return
 }
 
@@ -381,7 +388,7 @@ New-Item -ItemType Directory -Force -Path $outputFull | Out-Null
 
 if (Test-Path -LiteralPath (Join-Path $sourceFull "SKILL.md")) {
     $result = Convert-OneSkill $sourceFull $adapter $outputFull
-    Write-Result $result
+    Complete-Result $result
     return
 }
 
@@ -389,9 +396,9 @@ $hasPluginManifest = (Test-Path -LiteralPath (Join-Path $sourceFull "plugin.json
 $hasPluginSkills = Test-Path -LiteralPath (Join-Path $sourceFull "skills")
 if ($hasPluginManifest -or $hasPluginSkills) {
     $result = Convert-Plugin $sourceFull $adapter $outputFull
-    Write-Result $result
+    Complete-Result $result
     return
 }
 
 $result = New-Result $false "blocked" $adapter "unknown" (Split-Path -Leaf $sourceFull) @() "Source is neither a direct Agent Skill nor a pure skill-bundle plugin." $false $true $true
-Write-Result $result
+Complete-Result $result
