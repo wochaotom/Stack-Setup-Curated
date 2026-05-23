@@ -100,9 +100,27 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
   - **Discovery-only: VoltAgent/awesome-agent-skills and awesomeskills.dev** - useful for finding vendor or community leads. Never recommend installation from these directories without inspecting the original repository and pinning provenance.
   - **Rejected as vetted source: officialskills.sh** - do not call it official, trusted, or vetted. Treat any entry found there as an unverified lead only; current public trust signals and third-party maintenance claims are not enough for qualified-source status.
 - Prefer first-party vendor repositories and the built-in `skill-installer` curated OpenAI source when available.
+- Treat `detected.platformCapabilities[].sourceAuthority` as the machine-readable adapter source registry. Every adapter must point to official or first-party docs; discovery-only directories and unofficial mirrors are never adapter authority.
 - Before recommending installation from any discovery-only index, inspect the original GitHub repository, `SKILL.md`, scripts, hooks, install steps, network calls, and permissions.
 - Pin external skills to a commit/ref when possible, and record why the repo needs that skill.
 - Never recommend installing a skill solely because it is listed in a directory.
+
+## Skill And Plugin Conversion
+
+Use `convert_skill.ps1` only after choosing a target platform. It writes reviewable artifacts into an output directory; it does not install or enable anything by itself.
+
+```powershell
+& "$env:USERPROFILE\.codex\skills\codex-setup-audit\scripts\convert_skill.ps1" -SourcePath <skill-or-plugin> -Target github-copilot -OutputPath <out> -Json
+```
+
+Conversion rules:
+
+- Prefer native Agent Skill folders when the target's official docs support them, such as `.github/skills`, `.cursor/skills`, `.opencode/skills`, `.cline/skills`, or `.windsurf/skills`.
+- For targets without a native or close-equivalent skill folder, emit instruction-only artifacts only for simple skills with no bundled resources. Examples: Aider conventions, Continue checks, and Roo rules.
+- Block conversions that would drop supporting files, scripts, assets, MCP servers, hooks, tools, auth, or client-exclusive plugin behavior. Use `-AllowPartial` only when the user explicitly accepts a lossy instruction-only artifact after review.
+- For plugins, extract skills only from pure skill-bundle plugins. If a plugin includes hooks, MCP config, commands, agents, apps, auth, or unknown root files, report `status: blocked` instead of guessing.
+- Include `sourceAuthority` in converter JSON output so downstream tooling can prove the target adapter came from an official source.
+- Run `convert_skill.ps1 -ListTargets -Json` to inspect supported targets and whether each target preserves supporting files.
 
 ## Report Template
 

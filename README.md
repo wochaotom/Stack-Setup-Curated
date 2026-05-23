@@ -7,6 +7,7 @@ Local project copy of cross-agent setup-audit skills.
 - `AGENTS.md` - repo-local agent rules for treating this checkout as the skill source of truth.
 - `skills-lock.json` - committed SHA-256 manifest for every bundled skill file.
 - `skills/codex-setup-audit` - read-only repo setup recommender for AI coding assistants, including context/rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification.
+- `skills/codex-setup-audit/scripts/convert_skill.ps1` - conservative skill/plugin converter for supported clients; writes reviewable artifacts and blocks lossy conversions by default.
 - `skills/sourcelift-catalog-refresh` - SourceLift / Great Homes Source catalog-refresh workflow skill.
 - `skills/autoresearch` - third-party autonomous metric-loop skill from `uditgoenka/autoresearch`, installed from commit `98398ba5837ce74ca2ba888bc31456f2837cf33c`.
 
@@ -62,10 +63,14 @@ Restart Codex or open a new session after syncing so the skill index refreshes.
 ```powershell
 & .\skills\codex-setup-audit\scripts\audit.ps1 -Path D:\Projects\Shop_Lifter_NG
 & .\skills\codex-setup-audit\scripts\audit.ps1 -Path D:\Projects\Shop_Lifter_NG -Focus hooks
+& .\skills\codex-setup-audit\scripts\convert_skill.ps1 -SourcePath .\skills\codex-setup-audit -Target github-copilot -OutputPath .\out\converted -Json
+& .\skills\codex-setup-audit\scripts\convert_skill.ps1 -ListTargets -Json
 ```
 
 ## External Skill Sources
 
-Primary vetted sources are first-party client docs and registries: OpenAI's skills catalog (`https://github.com/openai/skills`) and `$skill-installer`, `agentskills.io` / `agentskills/agentskills`, Anthropic / Claude Code docs, GitHub Copilot docs plus `github/awesome-copilot` with per-skill inspection, Cursor docs, Google Antigravity and Gemini CLI docs, OpenCode docs, Aider docs, Continue docs, Cline docs, Roo Code docs, and Windsurf docs.
+Primary vetted sources are first-party client docs and registries: OpenAI's skills catalog (`https://github.com/openai/skills`) and `$skill-installer`, `agentskills.io` / `agentskills/agentskills`, Anthropic / Claude Code docs, GitHub Copilot docs, Cursor docs, Google Antigravity and Gemini CLI docs, OpenCode docs, Aider docs, Continue docs, Cline docs, Roo Code docs, and Windsurf docs. The audit JSON exposes these as `detected.platformCapabilities[].sourceAuthority` so adapter claims can be checked mechanically.
+
+`convert_skill.ps1` uses those authoritative platform mappings. It preserves full skill folders for targets with native Agent Skill support, emits instruction-only artifacts for simple skills on instruction/rule/check platforms, and blocks plugin or skill conversions that would lose supporting files, hooks, MCP servers, tools, auth, or other client-exclusive behavior.
 
 Treat broad directories such as `VoltAgent/awesome-agent-skills` and `awesomeskills.dev` as discovery-only lead sources. Do not treat `officialskills.sh` as vetted or official; entries found there require original-repo inspection and pinned provenance before any recommendation.

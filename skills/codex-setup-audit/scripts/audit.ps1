@@ -88,11 +88,94 @@ function Get-ClientPlan() {
     )
 }
 
+function New-SourceAuthority($Sources, $Notes = "") {
+    return [ordered]@{
+        status = "official"
+        sources = @($Sources)
+        notes = $Notes
+    }
+}
+
+function Get-PlatformSourceAuthority($Client) {
+    switch ($Client) {
+        "Codex" {
+            return New-SourceAuthority @(
+                "https://github.com/openai/skills",
+                "https://agentskills.io/"
+            ) "OpenAI skills catalog and the Agent Skills standard are the source references for Codex skill bundles."
+        }
+        "Claude Code" {
+            return New-SourceAuthority @(
+                "https://docs.claude.com/en/docs/claude-code",
+                "https://github.com/anthropics/skills",
+                "https://agentskills.io/"
+            ) "Claude Code docs plus Anthropic's Agent Skills repository are authoritative for Claude-specific adapters."
+        }
+        "GitHub Copilot" {
+            return New-SourceAuthority @(
+                "https://docs.github.com/en/copilot"
+            ) "GitHub Docs are authoritative; community skill directories still require per-skill inspection."
+        }
+        "Cursor" {
+            return New-SourceAuthority @(
+                "https://cursor.com/docs"
+            ) "Cursor's own docs are authoritative for rules, MCP, CLI, and skills support."
+        }
+        "Google Antigravity" {
+            return New-SourceAuthority @(
+                "https://www.antigravity.google/docs/home",
+                "https://www.antigravity.google/docs/plugins",
+                "https://www.antigravity.google/docs/hooks"
+            ) "Google Antigravity docs are authoritative for skills, plugins, hooks, MCP, permissions, and agents."
+        }
+        "Gemini CLI" {
+            return New-SourceAuthority @(
+                "https://google-gemini.github.io/gemini-cli/docs/",
+                "https://github.com/google-gemini/gemini-cli"
+            ) "Gemini CLI docs and repository are authoritative for extensions, commands, MCP, hooks, and skills."
+        }
+        "OpenCode" {
+            return New-SourceAuthority @(
+                "https://opencode.ai/docs/"
+            ) "Use opencode.ai official docs; do not rely on unofficial mirrors."
+        }
+        "Aider" {
+            return New-SourceAuthority @(
+                "https://aider.chat/docs/"
+            ) "Aider's official docs are authoritative for conventions, repo-map behavior, and CLI configuration."
+        }
+        "Continue" {
+            return New-SourceAuthority @(
+                "https://docs.continue.dev/"
+            ) "Continue docs are authoritative for checks, config, rules, prompts, tools, context providers, and MCP."
+        }
+        "Cline" {
+            return New-SourceAuthority @(
+                "https://docs.cline.bot/"
+            ) "Cline docs are authoritative for rules, skills, plugins, workflows, MCP, hooks, scheduling, and subagents."
+        }
+        "Roo Code" {
+            return New-SourceAuthority @(
+                "https://docs.roocode.com/"
+            ) "Roo Code docs remain the official source; note the current project status before recommending new setup."
+        }
+        "Windsurf" {
+            return New-SourceAuthority @(
+                "https://docs.windsurf.com/"
+            ) "Windsurf docs are authoritative for Cascade rules, memories, skills, and plugins."
+        }
+        default {
+            return New-SourceAuthority @() "No source authority registered for this client."
+        }
+    }
+}
+
 function New-PlatformCapability($Client, $Confidence, $Docs, $Context, $Skills, $Mcp, $Hooks, $Commands, $Agents, $Automations, $Permissions, $Provenance, $Verification) {
     return [ordered]@{
         client = $Client
         confidence = $Confidence
         docs = @($Docs)
+        sourceAuthority = Get-PlatformSourceAuthority $Client
         capabilities = [ordered]@{
             context = $Context
             skills = $Skills
@@ -729,7 +812,8 @@ Write-Output ""
 Write-Output "**Platform Capability Matrix**"
 foreach ($platform in $report.detected.platformCapabilities) {
     $caps = $platform.capabilities
-    Write-Output "- $($platform.client) [$($platform.confidence)]: context=$($caps.context); skills=$($caps.skills); MCP=$($caps.mcp); hooks=$($caps.hooks); commands=$($caps.commands); agents=$($caps.agents); permissions=$($caps.permissions); verify=$($platform.verification)"
+    $sources = @($platform.sourceAuthority.sources) -join ", "
+    Write-Output "- $($platform.client) [$($platform.confidence); sources=$($platform.sourceAuthority.status)]: context=$($caps.context); skills=$($caps.skills); MCP=$($caps.mcp); hooks=$($caps.hooks); commands=$($caps.commands); agents=$($caps.agents); permissions=$($caps.permissions); verify=$($platform.verification); source=$sources"
 }
 
 Write-Output ""

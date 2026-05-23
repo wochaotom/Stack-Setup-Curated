@@ -5,8 +5,10 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $auditPath = Join-Path $scriptDir "audit.ps1"
+$convertPath = Join-Path $scriptDir "convert_skill.ps1"
 $skillPath = Join-Path (Split-Path -Parent $scriptDir) "SKILL.md"
 $yamlPath = Join-Path (Split-Path -Parent $scriptDir) "agents\openai.yaml"
+$tmpRoot = Join-Path $env:TEMP ("codex-setup-audit-self-" + [guid]::NewGuid().ToString("N"))
 
 $checks = @()
 
@@ -24,6 +26,41 @@ $auditText = & $auditPath -Path $Path
 $auditJson = & $auditPath -Path $Path -Json | ConvertFrom-Json
 $hookFocus = & $auditPath -Path $Path -Focus hooks
 $inventoryJson = & (Join-Path $scriptDir "inventory.ps1") -Path $Path | ConvertFrom-Json
+$conversionJson = $null
+$complexConversionJson = $null
+try {
+    New-Item -ItemType Directory -Force -Path (Join-Path $tmpRoot "simple-skill") | Out-Null
+    Set-Content -LiteralPath (Join-Path $tmpRoot "simple-skill\SKILL.md") -Encoding UTF8 -Value @'
+---
+name: portable-review
+description: Use when reviewing portable skill conversion fixtures.
+---
+
+# Portable Review
+
+Follow the review checklist and stop if evidence is missing.
+'@
+    New-Item -ItemType Directory -Force -Path (Join-Path $tmpRoot "complex-skill\scripts") | Out-Null
+    Set-Content -LiteralPath (Join-Path $tmpRoot "complex-skill\SKILL.md") -Encoding UTF8 -Value @'
+---
+name: complex-review
+description: Use when testing complex conversion blocking.
+---
+
+# Complex Review
+
+Run `scripts/check.ps1` before reporting.
+'@
+    Set-Content -LiteralPath (Join-Path $tmpRoot "complex-skill\scripts\check.ps1") -Encoding UTF8 -Value "Write-Output 'checked'"
+    if (Test-Path -LiteralPath $convertPath) {
+        $conversionJson = & $convertPath -SourcePath (Join-Path $tmpRoot "simple-skill") -Target "github-copilot" -OutputPath (Join-Path $tmpRoot "converted") -Json | ConvertFrom-Json
+        $complexConversionOutput = & $convertPath -SourcePath (Join-Path $tmpRoot "complex-skill") -Target "continue" -OutputPath (Join-Path $tmpRoot "blocked") -Json 2>$null
+        $complexConversionJson = $complexConversionOutput | ConvertFrom-Json
+    }
+} catch {
+    $conversionJson = $null
+    $complexConversionJson = $null
+}
 
 Add-Check "skill frontmatter" ($skill -match "^---" -and $skill -match "name:\s*codex-setup-audit" -and $skill -match "description:\s*Use when")
 Add-Check "ui metadata" ($yaml -match "display_name: `"Agent Setup Audit`"" -and $yaml -match "\$codex-setup-audit")
@@ -54,6 +91,11 @@ Add-Check "verify command renders literally" ($auditText -match 'audit\.ps1 -Jso
 Add-Check "json emits new setup keys" ($auditJson.detected.safeSourcePolicy.Count -gt 0 -and $auditJson.detected.modelPlan.Count -gt 0 -and $auditJson.detected.clientPlan.Count -gt 0 -and $auditJson.detected.harnessAudit.Count -gt 0 -and $auditJson.implementationPlan.Count -gt 0 -and $auditJson.verifyPlan.Count -gt 0)
 Add-Check "json emits platform matrix" ($auditJson.detected.platformCapabilities.Count -ge 11 -and @($auditJson.detected.platformCapabilities | Where-Object { $_.client -eq "Windsurf" -and $_.confidence -eq "docs-backed" }).Count -eq 1)
 Add-Check "platform capabilities are populated" (@($auditJson.detected.platformCapabilities | Where-Object { -not $_.capabilities.context -or -not $_.verification }).Count -eq 0)
+Add-Check "platform sources are official" (@($auditJson.detected.platformCapabilities | Where-Object { $_.sourceAuthority.status -ne "official" -or @($_.sourceAuthority.sources).Count -eq 0 }).Count -eq 0)
+Add-Check "unsafe opencode mirror absent" (@($auditJson.detected.platformCapabilities | Where-Object { (@($_.sourceAuthority.sources) -join " ") -match "open-code\.ai" }).Count -eq 0)
+Add-Check "converter script exists" (Test-Path -LiteralPath $convertPath)
+Add-Check "converter emits native skill" ($conversionJson.success -eq $true -and $conversionJson.status -eq "converted" -and @($conversionJson.generatedFiles | Where-Object { $_ -match "\.github[\\/]skills[\\/]portable-review[\\/]SKILL\.md$" }).Count -eq 1)
+Add-Check "converter blocks lossy complex conversion" ($complexConversionJson.success -eq $false -and $complexConversionJson.status -eq "blocked" -and $complexConversionJson.reason -match "supporting files")
 Add-Check "json fit evidence populated" (@($auditJson.recommendations.Immediate + $auditJson.recommendations.Optional + $auditJson.recommendations.Avoid | Where-Object { -not $_.fitEvidence }).Count -eq 0)
 Add-Check "skill bundle profile" ($auditJson.detected.stack -eq "Codex skill bundle" -and $auditText -notmatch "catalog-cleanup prototype|source-catalog cleanup prototype|catalog build command")
 Add-Check "bundled skill names do not drive target fit" ($auditText -notmatch "existing SourceLift catalog-refresh skill|source-catalog safety|\$sourcelift-catalog-refresh")
@@ -73,4 +115,7 @@ $failed = @($checks | Where-Object { -not $_.pass })
     checks = $checks
 } | ConvertTo-Json -Depth 5
 
+if (Test-Path -LiteralPath $tmpRoot) {
+    Remove-Item -LiteralPath $tmpRoot -Recurse -Force
+}
 if ($failed.Count -gt 0) { exit 1 }
