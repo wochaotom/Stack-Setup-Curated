@@ -73,6 +73,8 @@ testpaths = ["tests"]
     Add-Check "react model fit and discussion" ($reactAudit -match "Model fit:" -and $reactAudit -match "Model Plan" -and $reactAudit -match "Which workflow hurts most today")
     Add-Check "react harness audit emitted" ($reactAudit -match "Harness Audit" -and $reactAudit -match "Permission gates" -and $reactAudit -match "Tools/MCP:")
     Add-Check "react client plan includes cursor antigravity" ($reactAudit -match "Client Plan" -and $reactAudit -match "\.cursor/rules" -and $reactAudit -match "Antigravity")
+    Add-Check "react platform matrix is broad" ($reactAudit -match "Platform Capability Matrix" -and $reactAudit -match "Copilot" -and $reactAudit -match "OpenCode" -and $reactAudit -match "Continue" -and $reactAudit -match "Cline" -and $reactAudit -match "Windsurf")
+    Add-Check "react platform matrix names capability artifacts" ($reactAudit -match "\.github/copilot-instructions\.md" -and $reactAudit -match "\.clinerules" -and $reactAudit -match "\.windsurf/rules")
     Add-Check "react fit evidence emitted" ($reactAudit -match " Fit: " -and $reactAudit -notmatch "Fit: Frontend dependencies were detected")
     Add-Check "react model fit is concise" ($reactAudit -match "Model fit: tiered:" -and $reactAudit -notmatch "Model fit: Use a strong coding model")
     Add-Check "python quality hooks gated" ($pyAudit -match "Ruff/pytest hooks" -and $pyAudit -match "command timing")

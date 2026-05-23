@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "SHA256",
-  "generatedAt": "2026-05-23T21:13:12.9040949Z",
+  "generatedAt": "2026-05-23T22:12:07.3505079Z",
   "skills": [
     {
       "name": "autoresearch",
@@ -71,19 +71,19 @@
     },
     {
       "name": "codex-setup-audit",
-      "bundleSha256": "6EF3A01A6DA58C24232C785510D57A0ADB12242030FB644DF422DFA4050948B0",
+      "bundleSha256": "E3F701ABD866E8745B3F7CA1ED3E5E0FC3ABDADDFDA65955B6CF497448585AFF",
       "files": [
         {
           "path": "agents\\openai.yaml",
-          "sha256": "A1C85FF4C21EA5C01C09E42F44830779BE5A8C4F77A135D7336F93CAE3085114"
+          "sha256": "FFF01FA38E2A190243F6B6D8E36077BC4003C82C2AFF081E84FD678461E8FE2B"
         },
         {
           "path": "scripts\\audit.ps1",
-          "sha256": "3BF5F30FFB8266FA9A5B555934E063AC53B722723059948A19B7D09ED2A86434"
+          "sha256": "E42837E4A42B12C8302AE07EC4612C8C5322C6995A119DD4947DC10D73B2B646"
         },
         {
           "path": "scripts\\fixture_test.ps1",
-          "sha256": "7C6BC9FE650369EDEC129773B52379013E7850C3C0E47214190DC7E332E54D36"
+          "sha256": "9399EE616357E63AAFD4C58085B267D07F09A5A0E4ECA2BCC6C72D6470350281"
         },
         {
           "path": "scripts\\inventory.ps1",
@@ -91,11 +91,11 @@
         },
         {
           "path": "scripts\\self_test.ps1",
-          "sha256": "36D37BCF93DEF9E305303ED3FADD72AD3E7456885BCEDB1CBF353F6C019AA826"
+          "sha256": "23D52F6A515B84533754C737CE362EC525F888554198859924519125AEAE700F"
         },
         {
           "path": "SKILL.md",
-          "sha256": "33CC0851D4FCAF1F3B135F81450802ABB80BB590836FC8BFE06683863F34358A"
+          "sha256": "53DF4C67A1112AF38A0A62D987B0D8147A19193159CED3DB7D511C3B1492B23A"
         }
       ]
     },

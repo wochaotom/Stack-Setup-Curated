@@ -71,8 +71,8 @@ function Get-ModelPlan() {
 
 function Get-SafeSourcePolicy() {
     return @(
-        "Prefer OpenAI skills catalog and `$skill-installer when the confirmed target is Codex.",
-        "Use Agent Skills, Anthropic skills, GitHub Copilot, Cursor, and Google Antigravity official docs as reference or compatibility sources with review.",
+        "Prefer first-party client docs and registries for each target adapter instead of assuming one client's artifact format works everywhere.",
+        "Use Agent Skills, OpenAI, Anthropic, GitHub Copilot, Cursor, Google Antigravity/Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, and Windsurf official docs as compatibility sources with review.",
         "Treat broad community directories as discovery-only and inspect original repos before recommending.",
         'Reject `officialskills.sh` as a vetted source.'
     )
@@ -80,16 +80,184 @@ function Get-SafeSourcePolicy() {
 
 function Get-ClientPlan() {
     return @(
-        "Codex: AGENTS.md/rules, curated plugins/apps, `$skill-installer, explicit verification commands, and worktree/local environment setup.",
-        "Claude Code: CLAUDE.md, plugins, skills, agents/subagents, hooks, MCP, and slash commands when Claude parity is required.",
-        "GitHub Copilot: portable Agent Skills and GitHub-hosted skill guidance after previewing skills because community skills are not verified.",
-        "Cursor: `.cursor/rules` for persistent guidance and Cursor MCP via `mcp.json` or `cursor-agent mcp`; do not copy Codex hooks blindly.",
-        "Antigravity: MCP store or `~/.gemini/antigravity/mcp_config.json`, permission controls, and CLI plugin bundles with skills, agents, rules, MCP servers, and hooks."
+        "Start from capabilities first: context/rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification.",
+        "Map those capabilities through client adapters instead of making Codex, Claude Code, Cursor, or any other client the default answer.",
+        "Prefer portable artifacts such as AGENTS.md and Agent Skills when they fit; use client-specific files only where the client's docs back the behavior.",
+        "Examples: Cursor uses `.cursor/rules`; Antigravity: use MCP config, permissions, hooks, and agents only through documented Antigravity/Gemini mechanisms.",
+        "Treat unsupported capabilities as explicit gaps with verification notes, not as silent promises."
+    )
+}
+
+function New-PlatformCapability($Client, $Confidence, $Docs, $Context, $Skills, $Mcp, $Hooks, $Commands, $Agents, $Automations, $Permissions, $Provenance, $Verification) {
+    return [ordered]@{
+        client = $Client
+        confidence = $Confidence
+        docs = @($Docs)
+        capabilities = [ordered]@{
+            context = $Context
+            skills = $Skills
+            mcp = $Mcp
+            hooks = $Hooks
+            commands = $Commands
+            agents = $Agents
+            automations = $Automations
+            permissions = $Permissions
+            provenance = $Provenance
+        }
+        verification = $Verification
+    }
+}
+
+function Get-PlatformCapabilityMatrix() {
+    return @(
+        New-PlatformCapability "Codex" "docs-backed" @("local Codex skill/plugin model", "AGENTS.md convention") `
+            "AGENTS.md plus skill metadata; keep host Codex config separate from target repo evidence." `
+            "SKILL.md bundles under skills/ or installed skill directories." `
+            "MCP/plugins/apps when exposed by Codex; prefer narrow connectors over broad servers." `
+            "Codex hooks/plugin hooks where enabled; avoid unstable plugin-cache paths." `
+            "Built-in slash commands and skill entrypoints; custom command support is not assumed." `
+            "Subagents/reviewer agents through available client tooling." `
+            "Codex app automations for recurring work only after owner/cadence is confirmed." `
+            "Sandbox, approval policy, and plugin permissions must be reported before recommending mutations." `
+            "skills-lock.json, source commit pins, sync hashes, and tamper reports." `
+            "Run sync, scan, harness, and the repo's own verification commands."
+
+        New-PlatformCapability "Claude Code" "docs-backed" @("Claude Code docs: CLAUDE.md, skills, hooks, MCP, slash commands, subagents") `
+            "CLAUDE.md project memory and scoped memory files." `
+            "Agent Skills/Claude skills with SKILL.md and progressive disclosure." `
+            "MCP servers through Claude Code configuration." `
+            "Lifecycle hooks for deterministic external checks." `
+            ".claude/commands/*.md and MCP prompts exposed as slash commands." `
+            "Subagents/agents for isolated review or task execution." `
+            "No generic scheduler assumed; use external CI or an explicit client feature if present." `
+            "Tool permissions and hook side effects need review before enabling." `
+            "Pin external skills/plugins and record install source." `
+            "Use /context, /hooks, MCP listing, and a small task run to confirm loading."
+
+        New-PlatformCapability "GitHub Copilot" "docs-backed" @("GitHub Docs: repository custom instructions and AGENTS.md") `
+            ".github/copilot-instructions.md, .github/instructions/*.instructions.md, AGENTS.md, and root CLAUDE.md/GEMINI.md where supported." `
+            "GitHub-hosted/Agent Skills only after previewing; community skills are not automatically verified." `
+            "MCP support depends on the Copilot surface and host; do not assume parity with local IDE clients." `
+            "No repo hook system; use GitHub Actions or local client hooks instead." `
+            "Prompt files and instruction files, not guaranteed slash-command parity." `
+            "Copilot coding agent/custom agents where enabled by the GitHub/IDE plan." `
+            "GitHub Actions or issue/PR workflows are the durable automation layer." `
+            "Repository permissions, Actions secrets, and PR write access are the main gates." `
+            "Commit instruction files and pin any external skill source." `
+            "Check Copilot references show the instruction file and run a representative Copilot task."
+
+        New-PlatformCapability "Cursor" "docs-backed" @("Cursor docs: rules and MCP") `
+            ".cursor/rules for persistent project guidance." `
+            "No portable Agent Skills assumption; route skills through rules or MCP-backed recipes." `
+            "Cursor MCP via mcp.json / cursor-agent mcp flow." `
+            "Do not copy Codex/Claude hook syntax unless Cursor docs support the lifecycle." `
+            "Cursor commands are client-specific; keep reusable workflows in docs or rules." `
+            "Agent behavior is mode/client-driven; no permanent subagent artifact assumed by default." `
+            "Use CI/schedulers outside Cursor for recurring work." `
+            "Review MCP permissions and write scopes." `
+            "Track .cursor/rules and mcp.json changes in git." `
+            "Open Cursor rule UI or run a small task that should cite the rule."
+
+        New-PlatformCapability "Google Antigravity" "docs-backed" @("Antigravity docs: MCP, hooks, agents, permissions") `
+            ".agents/ workspace customization and Antigravity/Gemini rules where documented." `
+            "Antigravity skills or CLI plugin bundles when the docs support the target artifact." `
+            "~/.gemini/antigravity/mcp_config.json or MCP store configuration." `
+            "hooks.json with PreToolUse, PostToolUse, PreInvocation, PostInvocation, and Stop handlers." `
+            "Client/plugin commands only where documented by the Antigravity bundle." `
+            "Agents with system_prompt and tool-enable flags." `
+            "Use external scheduler unless Antigravity workspace has an explicit automation feature." `
+            "Permission controls, write tools, MCP tools, and subagent tools must be explicit." `
+            "Pin plugin bundles and review config diffs before enabling." `
+            "Inspect Antigravity settings/config and run a small agent task using the target rule/tool."
+
+        New-PlatformCapability "Gemini CLI" "docs-backed" @("Gemini CLI docs: GEMINI.md, extensions, MCP, commands, hooks, skills") `
+            "GEMINI.md plus project .gemini settings where appropriate." `
+            "Gemini CLI extensions can bundle prompts, MCP servers, commands, hooks, subagents, and agent skills." `
+            "settings.json mcpServers or `gemini mcp add` for stdio MCP servers." `
+            "Hooks through Gemini CLI extension/config where documented." `
+            "Custom commands through extensions." `
+            "Subagents through extension support where available." `
+            "Use external scheduler or explicit extension workflow; do not assume daemon behavior." `
+            "Review extension config, MCP server commands, and write scopes." `
+            "Pin extension source and generated gemini-extension.json." `
+            "Run `gemini extensions list`, MCP listing, and a small task that reads GEMINI.md."
+
+        New-PlatformCapability "OpenCode" "docs-backed" @("OpenCode docs: AGENTS.md rules and .opencode/agent") `
+            "AGENTS.md project guidelines." `
+            "Agents under .opencode/agent/ or user config where documented." `
+            "MCP support should be verified from OpenCode config before recommending." `
+            "No generic hook parity assumed." `
+            "OpenCode commands/client operations only where documented." `
+            ".opencode/agent markdown configs for specialized agents." `
+            "Use external scheduler/CI for recurring checks." `
+            "Check project config and agent write boundaries." `
+            "Pin agent files and track .opencode diffs." `
+            "Run /init or a small OpenCode task and confirm AGENTS.md/agent config is read."
+
+        New-PlatformCapability "Aider" "docs-backed" @("Aider docs: coding conventions and repo map") `
+            "CONVENTIONS.md or similar guidance files added to the chat; repo map supplies structure context." `
+            "No native Agent Skills assumption; use concise convention docs and commands." `
+            "No first-class MCP adapter assumed by this audit." `
+            "No hook lifecycle assumed; use git/pre-commit/CI outside Aider." `
+            "Aider CLI commands and chat workflows." `
+            "No persistent subagent artifact assumed." `
+            "Use shell/CI scheduler outside Aider." `
+            "Git commit mode, file allowlist, and command execution need operator review." `
+            "Commit convention files and record CLI flags/config." `
+            "Start Aider with the convention file and verify it follows one concrete rule."
+
+        New-PlatformCapability "Continue" "docs-backed" @("Continue docs: config.yaml, rules, prompts, tools, context providers, MCP") `
+            "config.yaml rules or Markdown rules for Agent/Chat/Edit behavior." `
+            "No direct SKILL.md parity assumed; model recipes as prompts/rules/tools." `
+            "mcpServers plus MCP context provider." `
+            "No lifecycle hooks assumed; use tools or external checks." `
+            "Prompt templates and slash commands in Continue config." `
+            "Custom agents/model roles through Continue configuration." `
+            "Use CI/external scheduler for recurring work." `
+            "Review tool definitions, context providers, and model/provider permissions." `
+            "Version config.yaml and any prompt/rule files." `
+            "Use @ context providers and a representative edit task to confirm rule loading."
+
+        New-PlatformCapability "Cline" "docs-backed" @("Cline docs: .clinerules, workflows, MCP") `
+            ".clinerules project rules." `
+            "No SKILL.md parity assumed; use rules and workflow markdown." `
+            "MCP tools can be referenced in workflows." `
+            "No general hook lifecycle assumed in this matrix." `
+            ".clinerules/workflows/*.md invoked as slash workflows." `
+            "Plan/Act behavior and workflows, not permanent subagent files by default." `
+            "Use workflows for on-demand tasks; external scheduler for recurring tasks." `
+            "Workflows execute with user permissions; review external workflows before running." `
+            "Commit .clinerules and workflow files." `
+            "Invoke one workflow and confirm it stops on test failure as specified."
+
+        New-PlatformCapability "Roo Code" "docs-backed" @("Roo Code docs: custom modes, rules, MCP") `
+            ".roo/rules/ and .roo/rules-{mode}/, with .roorules-{mode} fallback where documented." `
+            "No direct SKILL.md parity assumed; use mode rules and marketplace items with review." `
+            "MCP transports and marketplace MCPs where configured." `
+            "No generic hook lifecycle assumed." `
+            "Mode-specific workflows through custom modes/rules." `
+            "Custom modes with tool groups such as read, edit, command, and mcp." `
+            "Use external scheduler unless a Roo workflow explicitly supports recurrence." `
+            "Tool groups are the main permission boundary and must be narrow." `
+            "Commit .roo rule files and exported mode config when project-specific." `
+            "Switch to the mode and run a small task that should load the mode rules."
+
+        New-PlatformCapability "Windsurf" "docs-backed" @("Windsurf docs: rules, skills, memories") `
+            ".windsurf/rules/ and AGENTS.md for durable team-shared guidance." `
+            "Cascade skills when the behavior should be picked up automatically and needs supporting files." `
+            "MCP support depends on Windsurf/Cascade configuration; verify exact server config before recommending." `
+            "No hook parity assumed unless current Windsurf docs expose the lifecycle." `
+            "Workflows/skills as documented by Cascade." `
+            "Cascade modes/agents where available; do not assume Claude/Codex subagent format." `
+            "Use external scheduler for recurring checks." `
+            "Review tool permissions and memory/rule write behavior." `
+            "Commit .windsurf/rules and skill folders; avoid opaque memory-only setup for team rules." `
+            "Use Cascade customization UI or a task that should cite the rule/skill."
     )
 }
 
 function Get-HarnessAudit() {
-    $context = "Context: check AGENTS.md/CLAUDE.md/.cursor/rules/Antigravity rules and keep always-loaded guidance as a router to deeper docs."
+    $context = "Context: check AGENTS.md, CLAUDE.md, GEMINI.md, .github/copilot-instructions.md, .cursor/rules, .windsurf/rules, .clinerules, .roo/rules, Continue config, and client-specific instructions; keep always-loaded guidance as a router to deeper docs."
     if (-not (Test-Path -LiteralPath (Join-Path $root "AGENTS.md"))) {
         $context += " Gap: no AGENTS.md detected."
     }
@@ -123,7 +291,7 @@ function Get-HarnessAudit() {
 
 function Get-DiscussionQuestions() {
     $questions = @()
-    $questions += "Which AI clients should this repo actually support: Codex only, Claude Code parity, GitHub Copilot, Cursor, Antigravity, or cross-client Agent Skills?"
+    $questions += "Which AI clients should this repo actually support: Codex, Claude Code, GitHub Copilot, Cursor, Antigravity, Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, Windsurf, or a portable AGENTS.md/Agent Skills baseline?"
     if ($signals.looksLikeSourceLift) {
         $questions += "Should catalog refreshes remain manual, or is there a real supplier cadence that justifies automation?"
         $questions += "Who is allowed to approve edits to raw source files versus generated catalog outputs?"
@@ -470,6 +638,7 @@ $report = [ordered]@{
         modelFit = Get-ModelFit
         modelPlan = @(Get-ModelPlan)
         clientPlan = @(Get-ClientPlan)
+        platformCapabilities = @(Get-PlatformCapabilityMatrix)
         safeSourcePolicy = @(Get-SafeSourcePolicy)
         harnessAudit = @(Get-HarnessAudit)
         existingCodex = [ordered]@{
@@ -554,6 +723,13 @@ Write-Output ""
 Write-Output "**Client Plan**"
 for ($i = 0; $i -lt $report.detected.clientPlan.Count; $i++) {
     Write-Output "$($i + 1). $($report.detected.clientPlan[$i])"
+}
+
+Write-Output ""
+Write-Output "**Platform Capability Matrix**"
+foreach ($platform in $report.detected.platformCapabilities) {
+    $caps = $platform.capabilities
+    Write-Output "- $($platform.client) [$($platform.confidence)]: context=$($caps.context); skills=$($caps.skills); MCP=$($caps.mcp); hooks=$($caps.hooks); commands=$($caps.commands); agents=$($caps.agents); permissions=$($caps.permissions); verify=$($platform.verification)"
 }
 
 Write-Output ""

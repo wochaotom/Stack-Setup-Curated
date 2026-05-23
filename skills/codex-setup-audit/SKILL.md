@@ -1,15 +1,15 @@
 ---
 name: codex-setup-audit
-description: Use when the user asks for a Claude Code Setup equivalent, repo onboarding audit, or recommendations for Codex plugins, MCP servers, skills, hooks, subagents, commands, automations, or AGENTS.md/rules for a codebase.
+description: Use when the user asks for repo onboarding, AI coding assistant setup, cross-client agent configuration, or recommendations for skills, MCP/tools, hooks, commands, agents, automations, rules, permissions, or verification harnesses.
 ---
 
-# Codex Setup Audit
+# Agent Setup Audit
 
 ## Goal
 
-Produce a read-only setup report for a repository that matches the Claude Code Setup plugin's job and extends it for Codex: inspect the project and recommend the highest-value agent configuration for this repo.
+Produce a read-only setup report for a repository that maps agent capabilities to the right client adapters. The audit is capabilities first: context/rules, skills/recipes, MCP/tools, hooks, commands, agents/subagents, automations, permissions, provenance, and verification. Then it maps those capabilities to Codex, Claude Code, GitHub Copilot, Cursor, Google Antigravity, Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, Windsurf, or a portable AGENTS.md/Agent Skills baseline.
 
-Baseline reference: `https://claude.com/plugins/claude-code-setup` analyzes codebases and recommends Claude Code automations across MCP servers, skills, hooks, subagents, and slash commands. This skill must go further for Codex by adding safe-source qualification, user-fit discussion, concrete setup plans, model guidance, AGENTS.md/rules, local environment setup, automations, GitHub integration, Cursor support, Antigravity support, and avoid-list reasoning.
+Baseline reference: Claude Code Setup (`https://claude.com/plugins/claude-code-setup`) analyzes codebases and recommends Claude Code automations across MCP servers, skills, hooks, subagents, and slash commands. This skill must go further than one-client setup by adding safe-source qualification, user-fit discussion, concrete setup plans, model guidance, cross-client adapters, local environment setup, automations, GitHub integration, and avoid-list reasoning.
 
 Vault-derived operating lens: treat skills, MCP servers, hooks, rules, memories, subagents, verifiers, logs, and client-specific config as one agent harness. A setup audit should inspect that harness before recommending new pieces.
 
@@ -17,7 +17,8 @@ Vault-derived operating lens: treat skills, MCP servers, hooks, rules, memories,
 
 - Default to read-only. Do not edit repo files, install tools, enable plugins, create hooks, or mutate config unless the user explicitly asks for implementation after the report.
 - Separate facts from recommendations. Mark unknowns as unknown.
-- Prefer existing Codex mechanisms over invented ones: plugins/apps, MCP, skills, hooks, subagents, slash commands, automations, AGENTS.md/rules, GitHub integration, and local environment setup.
+- Prefer existing client mechanisms over invented ones: context files, rules, skills, MCP/tools, hooks, commands, agents/subagents, automations, permissions, provenance, and local environment setup.
+- Do not make Codex the default answer. Start from the capability needed, then map to client adapters and call out unsupported or unverified pieces.
 - Call out conflicts, duplicate tooling, unstable cache paths, Windows path issues, auth gaps, and security risks.
 - Recommend no more than 1-2 high-value items per category unless the user asks for a specific category.
 - Keep the final report concise enough to act on.
@@ -54,7 +55,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
    - model fit: cheap/fast model for deterministic checks, stronger coding model for implementation, strongest/review model for architecture, security, or long-running refactors
    - user fit: what must be confirmed with the user before installation or durable config
 6. Audit the harness around the model:
-   - context surfaces: AGENTS.md, CLAUDE.md, `.cursor/rules`, Antigravity rules, docs, plans, and client-specific instructions
+   - context surfaces: AGENTS.md, CLAUDE.md, GEMINI.md, `.github/copilot-instructions.md`, `.cursor/rules`, `.windsurf/rules`, `.clinerules`, `.roo/rules`, Continue config, docs, plans, and client-specific instructions
    - tools and MCP: exact tools exposed, owner, auth scope, read/write boundary, logging, and whether a narrower plugin/CLI/script would be safer
    - state and memory: durable files, generated outputs, raw sources, knowledge bases, session logs, and whether state is outside the agent's write authority where needed
    - contracts and verifiers: tests, lint, typecheck, build, visual QA, UAT, schema checks, reviewer checks, and command timing
@@ -89,6 +90,13 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
   - **Qualified with caveat: github/awesome-copilot** - `https://github.com/github/awesome-copilot` is a GitHub-owned community collection referenced by GitHub's agent-skill docs. Treat it as a GitHub ecosystem index, but preview and inspect every skill because GitHub warns these skills are not verified.
   - **Qualified with caveat: Cursor official docs** - `https://docs.cursor.com/` is authoritative for Cursor rules, CLI agent, and MCP behavior. Use it for Cursor-compatible plans such as `.cursor/rules` and `mcp.json`; do not treat community Cursor guides as vetted installs.
   - **Qualified with caveat: Google Antigravity official docs** - `https://www.antigravity.google/docs/` is authoritative for Antigravity MCP, permissions, CLI plugins, skills, agents, rules, and hooks. Treat Antigravity plugin plans as client-specific and verify paths such as `~/.gemini/antigravity/` or `~/.gemini/antigravity-cli/` before recommending edits.
+  - **Qualified with caveat: Gemini CLI official docs** - `https://google-gemini.github.io/gemini-cli/` and `google-gemini/gemini-cli` docs are authoritative for GEMINI.md, extensions, MCP, commands, hooks, subagents, and agent skills. Verify installed CLI version and extension schema before recommending edits.
+  - **Qualified with caveat: OpenCode official docs** - OpenCode docs are authoritative for AGENTS.md rules and `.opencode/agent/` agent configuration. Verify local OpenCode version and project config before assuming behavior.
+  - **Qualified with caveat: Aider official docs** - Aider docs are authoritative for conventions files and repo-map behavior. Do not assume native skills, hooks, or MCP parity unless current docs show it.
+  - **Qualified with caveat: Continue official docs** - `https://docs.continue.dev/` is authoritative for config.yaml, rules, prompts, tools, context providers, model roles, and MCP servers.
+  - **Qualified with caveat: Cline official docs** - `https://docs.cline.bot/` is authoritative for `.clinerules`, workspace workflows under `.clinerules/workflows/`, and MCP tool use in workflows.
+  - **Qualified with caveat: Roo Code official docs** - Roo Code docs are authoritative for custom modes, `.roo/rules/`, `.roo/rules-{mode}/`, `.roorules-{mode}`, tool groups, marketplace items, and MCP transports.
+  - **Qualified with caveat: Windsurf official docs** - `https://docs.windsurf.com/` is authoritative for Cascade rules, memories, skills, and team-shared `.windsurf/rules/` or AGENTS.md guidance.
   - **Discovery-only: VoltAgent/awesome-agent-skills and awesomeskills.dev** - useful for finding vendor or community leads. Never recommend installation from these directories without inspecting the original repository and pinning provenance.
   - **Rejected as vetted source: officialskills.sh** - do not call it official, trusted, or vetted. Treat any entry found there as an unverified lead only; current public trust signals and third-party maintenance claims are not enough for qualified-source status.
 - Prefer first-party vendor repositories and the built-in `skill-installer` curated OpenAI source when available.
@@ -164,6 +172,13 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - GitHub Copilot: map portable Agent Skills and GitHub-hosted skill guidance only after previewing skills because GitHub warns community skills are not verified.
 - Cursor: map persistent project guidance to `.cursor/rules`, MCP integration to Cursor's `mcp.json` / `cursor-agent mcp` flow, and avoid copying Codex hooks into Cursor unless Cursor's current docs support the same lifecycle.
 - Antigravity: map setup to Antigravity's Agent/Manager workflow, MCP store or `mcp_config.json`, permission controls, and CLI plugin bundles containing skills, agents, rules, MCP servers, and hooks.
+- Gemini CLI: map durable guidance to GEMINI.md and package broader behavior as extensions only after checking the current `gemini-extension.json` schema.
+- OpenCode: map durable repo guidance to AGENTS.md and specialized agents to `.opencode/agent/` when docs and local version support it.
+- Aider: map durable coding conventions to a small conventions file the operator adds to chat; do not claim native skills or hooks without current docs.
+- Continue: map context/rules/prompts/tools through config.yaml, context providers, model roles, and MCP servers.
+- Cline: map persistent behavior to `.clinerules` and repeatable operator flows to `.clinerules/workflows/*.md`.
+- Roo Code: map behavior to `.roo/rules/`, mode-specific `.roo/rules-{mode}/`, custom modes, and MCP/tool groups.
+- Windsurf: map team-shared guidance to `.windsurf/rules/` or AGENTS.md and use Cascade skills when behavior needs supporting files.
 - Cross-client plans should name which artifacts are portable and which are client-specific. Do not imply one client's hook/rule/plugin format works in another client without documentation evidence.
 - For MCP-backed workflows, treat the MCP as the capability and the skill/rule as the recipe for using it: what to open, what evidence to collect, when to stop, and what output to produce.
 
@@ -172,7 +187,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Fast/cheap model: use for inventory, deterministic script edits, fixture generation, and narrow checks.
 - Strong coding model: use for implementation, refactors, test repair, and setup scripts that touch several files.
 - Strongest/review model: use for architecture tradeoffs, security-sensitive setup, high-blast-radius automation, and final review.
-- Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Be Codex-first for Codex installs, but do not hard-code one vendor when the user confirms the repo should support Claude Code, GitHub Copilot, Cursor, Antigravity, or another Agent Skills client safely.
+- Cross-model support: phrase recommendations in capability terms first, then map to the available model family in the user's environment. Do not hard-code one vendor when the repo should support multiple coding assistants safely.
 - Do not recommend a more expensive or high-autonomy model when a deterministic hook, local command, or smaller model would satisfy the workflow.
 - When comparing clients or models, evaluate the whole harness: context assembly, action boundary, verification loop, state persistence, review surface, permission model, and codebase cognition.
 

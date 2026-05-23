@@ -1,7 +1,7 @@
 interface:
-  display_name: "Codex Setup Audit"
+  display_name: "Agent Setup Audit"
   short_description: "Audit repo agent setup"
-  default_prompt: "Use $codex-setup-audit to recommend the best Codex setup for this repository without editing files."
+  default_prompt: "Use $codex-setup-audit to recommend the best cross-agent setup for this repository without editing files."
 
 policy:
   allow_implicit_invocation: true
