@@ -1,15 +1,19 @@
 {
   "version": 1,
   "algorithm": "SHA256",
-  "generatedAt": "2026-05-23T23:29:34.1234010Z",
+  "generatedAt": "2026-05-24T00:48:35.3632010Z",
   "skills": [
     {
       "name": "autoresearch",
-      "bundleSha256": "291F35C3589AF3F90EAF88488A56C8ABC745553EA14590F31E26F738DBBEB0A9",
+      "bundleSha256": "E274F1FE12FDD10B85CED4A7999176BA08231F61E1F36F823A558B297E977F57",
       "files": [
         {
           "path": "agents\\openai.yaml",
           "sha256": "4C0CFC461B870BBE9BFEC557BEB7E335841C09A780C6B07329825E3FC2AEB961"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "36FE186F404FA529A4C290A5C671E0DD07162BE0C3270C02E1CDC831E97BF127"
         },
         {
           "path": "references\\autonomous-loop-protocol.md",
@@ -71,7 +75,7 @@
     },
     {
       "name": "codex-setup-audit",
-      "bundleSha256": "026C531ACFF8DE219862D48F6C0A52F2568480320C30AB9B476D3273018868AA",
+      "bundleSha256": "4019AC52172A80FF081B88C93055C30D629B9E12656C7339353AB625E82EFCF8",
       "files": [
         {
           "path": "agents\\openai.yaml",
@@ -79,7 +83,7 @@
         },
         {
           "path": "scripts\\audit.ps1",
-          "sha256": "28D22A7B7D4E9A423ADA897720AF458AE388BF15B0D1A396BA70F07628A69CEC"
+          "sha256": "FBA592DFD38C9035F8612D8E71A4E1384A36952D89ECF79BE56801EE0F70A4A3"
         },
         {
           "path": "scripts\\convert_skill.ps1",
@@ -95,11 +99,11 @@
         },
         {
           "path": "scripts\\self_test.ps1",
-          "sha256": "B5AF4FA2A829E9B2948134B5BCCA39E06A7F0FABADF52D015DC17F609E4D7A49"
+          "sha256": "FCC651C4C5F28198587AE5C98BC6435476DA8434CE49EC639C16FEE6C1AF495A"
         },
         {
           "path": "SKILL.md",
-          "sha256": "6B9286D3656C3D9D17FC98CCD2EA7EE9B550E14FD0E24F90191677E2CF74191F"
+          "sha256": "FF38ECB8F11A8CE687FACB78BFCA7B719381B777A58ABCC5D4A0920A1B6665F1"
         }
       ]
     },

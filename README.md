@@ -2,19 +2,24 @@
 
 **Source-locked agent setup skills for Codex and adjacent coding agents.**
 
+[![npx skills](https://img.shields.io/badge/npx-skills-orange)](https://github.com/vercel-labs/skills)
+[![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-blue)](https://agentskills.io/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 This repository is a curated skill bundle for setting up, auditing, and safely
 porting AI coding-agent workflows. It is not a giant skill marketplace and it is
 not an "install everything" script. The niche is narrower: keep a small set of
 high-value skills in a reviewed repo, verify their hashes, sync them into Codex,
 and make cross-agent setup decisions from official sources instead of guesswork.
+For cross-platform setup, target-native plugins, skills, rules, commands, and
+marketplaces come first. Conversion from another platform's skill is the fallback
+only when the target platform lacks a native or close-equivalent option.
 
 ```powershell
-git clone https://github.com/wochaotom/Stack-Setup-Curated.git
-cd Stack-Setup-Curated
-& .\scripts\sync_skills.ps1
+npx skills@latest add wochaotom/Stack-Setup-Curated --list
 ```
 
-After sync, restart Codex or open a new session so the skill index refreshes.
+Then install the specific skill you need into the agent you actually use.
 
 ## What This Gives You
 
@@ -37,9 +42,46 @@ After sync, restart Codex or open a new session so the skill index refreshes.
 
 ## Quick Start
 
-### Sync Into Codex
+### NPM / Marketplace Install
+
+`npx skills@latest` is the npm install surface for this repo. The repository is
+not a Node package; adding a `package.json` would imply a runtime package that
+does not exist here. This is also the Agent Skills marketplace-compatible path:
+install from the GitHub repo, choose the native `--agent`, and let that platform
+load the skill from its own skill directory.
+
+List available skills:
 
 ```powershell
+npx skills@latest add wochaotom/Stack-Setup-Curated --list
+```
+
+Install the setup audit skill globally:
+
+```powershell
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent codex --global --yes
+```
+
+Install for another native Agent Skills client:
+
+```powershell
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent claude-code --global --yes
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent cursor --global --yes
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent github-copilot --global --yes
+```
+
+Install all bundled skills to all agents detected by the CLI only after
+reviewing the list:
+
+```powershell
+npx skills@latest add wochaotom/Stack-Setup-Curated --all --yes
+```
+
+### Local Codex Sync
+
+```powershell
+git clone https://github.com/wochaotom/Stack-Setup-Curated.git
+cd Stack-Setup-Curated
 & .\scripts\sync_skills.ps1
 ```
 
@@ -90,6 +132,23 @@ Convert a portable skill to GitHub Copilot's skill layout:
 
 Blocked and unsupported conversions return JSON and exit nonzero, so CI and
 automation can fail fast instead of reading a false-success process exit.
+
+### Native-First Discovery
+
+When auditing or preparing setup for a platform:
+
+1. Search that platform's own official marketplace, built-in plugins, native
+   skills, rules, commands, agents, hooks, MCP docs, and extension model first.
+2. If there is no exact native match, look for a close target-native equivalent
+   that can be configured safely.
+3. Only when the target platform lacks a native or adjacent option, inspect
+   another platform's skill ecosystem, such as Claude Code or Codex, and convert
+   the smallest feasible skill.
+4. Block conversion when platform-exclusive features would be dropped: MCP
+   servers, hooks, auth, tools, agents, scripts, assets, apps, or other runtime
+   behavior.
+
+Conversion is a bridge for gaps, not the default acquisition path.
 
 ## Supported Adapter Targets
 
@@ -217,6 +276,11 @@ Broad directories such as `VoltAgent/awesome-agent-skills` and
 permissions, install steps, and provenance before recommending or copying any
 skill.
 
+Marketplace and `npx skills` discovery is useful for install mechanics, but it
+does not replace platform-native source review. Prefer the target platform's
+official ecosystem first, then use cross-platform conversion only for missing
+capabilities with reviewable provenance.
+
 ## Requirements
 
 - Git
@@ -225,10 +289,10 @@ skill.
 
 ## License And Provenance
 
-No repository-wide license has been selected yet. Do not assume an open-source
-grant for redistribution until a `LICENSE` file is added by the owner.
+This repository is licensed under the MIT License. See `LICENSE`.
 
 The bundled `autoresearch` skill is third-party content from
 `uditgoenka/autoresearch` at commit
 `98398ba5837ce74ca2ba888bc31456f2837cf33c`. Keep upstream provenance intact
-when syncing, modifying, or redistributing bundled skills.
+when syncing, modifying, or redistributing bundled skills. See
+`THIRD_PARTY_NOTICES.md` and `skills/autoresearch/LICENSE`.
