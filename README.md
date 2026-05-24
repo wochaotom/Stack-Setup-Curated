@@ -54,6 +54,10 @@ does not exist here. This is also the Agent Skills marketplace-compatible path:
 install from the GitHub repo, choose the native `--agent`, and let that platform
 load the skill from its own skill directory.
 
+Direct GitHub install works as soon as the repository is public. Marketplace
+install requires the repository to be accepted or indexed by the marketplace;
+use the marketplace's package id instead of guessing one from the GitHub name.
+
 List available skills:
 
 ```powershell
@@ -80,6 +84,19 @@ reviewing the list:
 ```powershell
 npx skills@latest add wochaotom/Stack-Setup-Curated --all --yes
 ```
+
+Marketplace search and install:
+
+```powershell
+npx skills@latest find setup-audit
+npx agent-skills-cli search setup-audit
+npx agent-skills-cli install <marketplace-skill-id> -a codex
+npx agent-skills-cli install <marketplace-skill-id> -a claude,cursor,copilot
+```
+
+Use marketplace install for discovery and convenience, then apply the same
+source review as a GitHub install: verify the original repo, maintainer,
+license, scripts, permissions, and pinned version before installing broadly.
 
 ### Local Codex Sync
 
@@ -246,7 +263,12 @@ After intentional skill edits, refresh the lockfile first:
 ```text
 .
 |-- AGENTS.md
+|-- CONTRIBUTING.md
+|-- LICENSE
 |-- README.md
+|-- SECURITY.md
+|-- THIRD_PARTY_NOTICES.md
+|-- research/source-distillation/
 |-- skills-lock.json
 |-- scripts/
 |   |-- scan_skills.ps1
@@ -257,6 +279,21 @@ After intentional skill edits, refresh the lockfile first:
     |-- codex-setup-audit/
     `-- sourcelift-catalog-refresh/
 ```
+
+| Path | Why it matters |
+| --- | --- |
+| `skills/` | Authoritative source for bundled skills. Edit here first; installed copies are derived. |
+| `skills/codex-setup-audit/` | Main audit/conversion skill. Its scripts produce setup recommendations, platform matrices, source-authority checks, and conversion results. |
+| `skills/sourcelift-catalog-refresh/` | Domain skill for SourceLift / Great Homes Source catalog work. Kept separate so its domain assumptions do not bleed into generic setup audits. |
+| `skills/autoresearch/` | Bundled third-party metric-loop skill. Preserve upstream MIT provenance and avoid silent rewrites. |
+| `skills-lock.json` | SHA-256 manifest for every bundled skill file. Refresh it only after intentional skill changes. |
+| `scripts/scan_skills.ps1` | Static guardrail for bundled skills: prompt-injection phrases, dynamic PowerShell execution, fetch-and-execute patterns, and credential-shaped literals. |
+| `scripts/sync_skills.ps1` | Controlled sync from repo skills into the local Codex skills directory, with lock verification and installed-drift reporting. |
+| `scripts/harness_test.ps1` | Repo-level regression harness for scanner, lock, sync, and tamper behavior. |
+| `research/source-distillation/` | Distilled findings from reviewed external skill repos. It is research input, not automatically installed runtime behavior. |
+| `AGENTS.md` | Operational instructions for future coding agents working in this repo. |
+| `SECURITY.md` | Public security policy and reportable issue categories. |
+| `THIRD_PARTY_NOTICES.md` | Required provenance notes for bundled third-party content. |
 
 ## Maintainer Workflow
 
