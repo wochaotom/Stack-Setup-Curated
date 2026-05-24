@@ -5,7 +5,7 @@ as the source of truth.
 
 ## Skill Sync
 
-- Installed copies under `C:\Users\great\.codex\skills` are derived artifacts.
+- Installed copies under `C:\Users\<you>\.codex\skills` are derived artifacts.
 - Prefer editing this repo first, then syncing to the installed skills directory.
 - `skills-lock.json` is the committed SHA-256 manifest for bundled skills.
 - Use `.\scripts\sync_skills.ps1` for sync; it scans repo skills, verifies the

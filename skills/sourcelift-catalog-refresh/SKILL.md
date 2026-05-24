@@ -25,10 +25,11 @@ Handle the SourceLift/Great Homes Source workflow safely: messy supplier/source 
    - current `git status --short --branch`
 2. Identify the source file, generated workbook, catalog JSON, and UI files.
 3. Before edits, state whether the task affects raw inputs, generation code, generated outputs, or UI.
-4. For refresh/build work, use the repo command from README:
+4. For refresh/build work, use the repo command from README or the active
+   workspace Python runtime:
 
 ```powershell
-& 'C:\Users\great\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' scripts\build_catalog.py
+python scripts\build_catalog.py
 ```
 
 5. Verify the result:

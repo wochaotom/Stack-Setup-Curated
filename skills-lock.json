@@ -1,7 +1,7 @@
 ﻿{
     "version":  1,
     "algorithm":  "SHA256",
-    "generatedAt":  "2026-05-24T15:06:03.3806560Z",
+    "generatedAt":  "2026-05-24T15:54:58.0938370Z",
     "skills":  [
                    {
                        "name":  "autoresearch",
@@ -109,7 +109,7 @@
                    },
                    {
                        "name":  "sourcelift-catalog-refresh",
-                       "bundleSha256":  "4EF5AF45B0AF963983DA60978EB4E53F2F11149595D4B4F431EEFF4A4CC2C920",
+                       "bundleSha256":  "2AF08CAAAEA7A4206728A9D23CE278C05E8971462595141AB37EC28A06B539F2",
                        "files":  [
                                      {
                                          "path":  "agents\\openai.yaml",
@@ -117,7 +117,7 @@
                                      },
                                      {
                                          "path":  "SKILL.md",
-                                         "sha256":  "D5C0B2A026B23AA5D3E61E8CEF35E778B4BAEB5A6575AB2763A078C9A1DAC7D7"
+                                         "sha256":  "24BFB13AA75A94F5FA75C0C38E8D10458DEC442B72E3CBDD253A5B52E7AE78F9"
                                      }
                                  ]
                    }

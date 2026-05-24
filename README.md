@@ -101,19 +101,19 @@ The sync path:
 ### Audit A Repo
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\audit.ps1 -Path D:\Projects\SomeRepo
+& .\skills\codex-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo
 ```
 
 Focus one mechanism:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\audit.ps1 -Path D:\Projects\SomeRepo -Focus hooks
+& .\skills\codex-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo -Focus hooks
 ```
 
 Machine-readable output:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\audit.ps1 -Path D:\Projects\SomeRepo -Json
+& .\skills\codex-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo -Json
 ```
 
 ### Convert A Skill
