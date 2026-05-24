@@ -90,6 +90,16 @@ function Get-NativeFirstSelectionPolicy() {
     )
 }
 
+function Get-MinimalInstallPolicy() {
+    return @(
+        "Default to no install until a concrete active workflow, target client, pinned source, safety review, owner, and verification path exist.",
+        "Install one native skill/plugin/command/rule package for the current job; do not install a broad stack by default.",
+        "Prefer narrow domain bundles over complete marketplace bundles.",
+        "Prefer link-only guidance or instruction-only conversion over installing risky runtime packages when scripts, tools, auth, hooks, MCP servers, automations, agents, or background services are not needed.",
+        "Treat stale, unused, duplicate, overlapping, or speculative setup as bloat to avoid or remove."
+    )
+}
+
 function Get-ClientPlan() {
     return @(
         "Start from capabilities first: context/rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification.",
@@ -390,6 +400,7 @@ function Get-DiscussionQuestions() {
     $questions = @()
     $questions += "Which AI clients should this repo actually support: Codex, Claude Code, GitHub Copilot, Cursor, Antigravity, Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, Windsurf, or a portable AGENTS.md/Agent Skills baseline?"
     $questions += "For each chosen client, which native marketplace/plugin/skill source should be checked first, and which cross-ecosystem marketplaces are acceptable if the skill/plugin only exists there?"
+    $questions += "What is the smallest install that satisfies the active workflow, and can any requested complete bundle be replaced by a narrow domain bundle, link, or conversion?"
     if ($signals.looksLikeSourceLift) {
         $questions += "Should catalog refreshes remain manual, or is there a real supplier cadence that justifies automation?"
         $questions += "Who is allowed to approve edits to raw source files versus generated catalog outputs?"
@@ -411,6 +422,7 @@ function Get-SetupPlan() {
         return @(
             "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
             "Search each target client's native ecosystem first, then check Claude Code, Codex, and any sole-source marketplace only after documenting the missing capability.",
+            "Choose the smallest reviewed install: no install, one native item, a narrow domain bundle, or link/convert before any complete bundle.",
             "Write or update AGENTS.md/rules with source-catalog boundaries, verification commands, and raw/generated file policy.",
             $skillStep,
             "Run the catalog build, JSON/workbook checks, and one UI smoke workflow before adding hooks or automations."
@@ -419,6 +431,7 @@ function Get-SetupPlan() {
     return @(
         "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
         "Search each target client's native ecosystem first, then check Claude Code, Codex, and any sole-source marketplace only after documenting the missing capability.",
+        "Choose the smallest reviewed install: no install, one native item, a narrow domain bundle, or link/convert before any complete bundle.",
         "Write or update AGENTS.md/rules with repo-specific boundaries and verification commands.",
         "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
         "Run the listed verification commands and one representative workflow before adding hooks or automations."
@@ -739,6 +752,7 @@ $report = [ordered]@{
         modelPlan = @(Get-ModelPlan)
         clientPlan = @(Get-ClientPlan)
         nativeFirstSelectionPolicy = @(Get-NativeFirstSelectionPolicy)
+        minimalInstallPolicy = @(Get-MinimalInstallPolicy)
         platformCapabilities = @(Get-PlatformCapabilityMatrix)
         safeSourcePolicy = @(Get-SafeSourcePolicy)
         harnessAudit = @(Get-HarnessAudit)
@@ -794,6 +808,12 @@ foreach ($policy in $report.detected.safeSourcePolicy) {
 Write-Output ""
 Write-Output "**Native-First Skill Selection**"
 foreach ($policy in $report.detected.nativeFirstSelectionPolicy) {
+    Write-Output "- $policy"
+}
+
+Write-Output ""
+Write-Output "**Minimal Install Policy**"
+foreach ($policy in $report.detected.minimalInstallPolicy) {
     Write-Output "- $policy"
 }
 

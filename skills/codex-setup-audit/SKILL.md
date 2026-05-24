@@ -141,6 +141,31 @@ target platform first, then borrow across ecosystems only to fill a documented
 gap. Claude Code and Codex can be first cross-ecosystem checks after a target
 gap is proven; they are not exclusive sources.
 
+## Minimal Install Policy
+
+Default to the smallest reviewed install that satisfies the active workflow.
+
+Selection order after a need is confirmed:
+
+1. No install: use existing rules, docs, commands, or built-in tools if they
+   already cover the workflow.
+2. Single native item: install one target-native skill/plugin/command/rule
+   package for the current job.
+3. Narrow domain bundle: use a domain-specific bundle instead of a complete
+   marketplace pack.
+4. Link or convert: prefer a link, source note, or converted instruction
+   artifact over installing a risky runtime package when scripts, tools, auth,
+   hooks, MCP servers, automations, or agents are not needed.
+5. Complete bundle or broad stack: recommend only when the user explicitly
+   needs broad coverage, accepts the maintenance cost, and verification covers
+   the added surface.
+
+Do not add MCP servers, hooks, automations, agents, background services,
+commands, or additional skills just because they look useful. Each installed
+piece needs an active workflow, target client, pinned source, safety review,
+owner, and verification path. Call out stale, unused, duplicate, or overlapping
+setup as bloat to avoid or remove.
+
 ## Skill And Plugin Conversion
 
 Use `convert_skill.ps1` only after choosing a target platform. It writes reviewable artifacts into an output directory; it does not install or enable anything by itself.
@@ -154,6 +179,9 @@ Conversion rules:
 - Conversion is last-resort acquisition. Search the target platform's official
   marketplace/plugins/skills first, then adjacent native equivalents, then other
   platform ecosystems and marketplace-only sources with provenance review.
+- Prefer link-only or instruction-only conversion over installing a runtime
+  package when supporting scripts, auth, MCP, hooks, agents, tools, or services
+  are not required for the active workflow.
 - Prefer native Agent Skill folders when the target's official docs support them, such as `.github/skills`, `.cursor/skills`, `.opencode/skills`, `.cline/skills`, or `.windsurf/skills`.
 - For targets without a native or close-equivalent skill folder, emit instruction-only artifacts only for simple skills with no bundled resources. Examples: Aider conventions, Continue checks, and Roo rules.
 - Block conversions that would drop supporting files, scripts, assets, MCP servers, hooks, tools, auth, or client-exclusive plugin behavior. Use `-AllowPartial` only when the user explicitly accepts a lossy instruction-only artifact after review.

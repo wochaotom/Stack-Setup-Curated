@@ -1,7 +1,7 @@
 ﻿{
     "version":  1,
     "algorithm":  "SHA256",
-    "generatedAt":  "2026-05-24T14:03:34.1513831Z",
+    "generatedAt":  "2026-05-24T15:06:03.3806560Z",
     "skills":  [
                    {
                        "name":  "autoresearch",
@@ -75,7 +75,7 @@
                    },
                    {
                        "name":  "codex-setup-audit",
-                       "bundleSha256":  "444D43D6E1B6D2AE11DE2129B905D2656D73864E7964FCC4A010F25117F11B3C",
+                       "bundleSha256":  "9C7D659B435A3724D0FDEF7767A08418B02C1E79D81D466AF988DBA36FEE8CA8",
                        "files":  [
                                      {
                                          "path":  "agents\\openai.yaml",
@@ -83,7 +83,7 @@
                                      },
                                      {
                                          "path":  "scripts\\audit.ps1",
-                                         "sha256":  "E052442336CB7D95262800910B72A70A098FF57924CDFD1A3ECDA596F1BA61A3"
+                                         "sha256":  "7DDCA38D55D6E2C7F0DFAE3508FE0D57363A9CE252F13D1EBE25716F653336C3"
                                      },
                                      {
                                          "path":  "scripts\\convert_skill.ps1",
@@ -99,11 +99,11 @@
                                      },
                                      {
                                          "path":  "scripts\\self_test.ps1",
-                                         "sha256":  "069DF2654F284577FED41039B769503F3F86AEB3AED95AB0E00C8F826B2A17B6"
+                                         "sha256":  "A4F253FC52FEBD847301ACC7209E9AE4F9E258BE64811117A90A3168C7759B51"
                                      },
                                      {
                                          "path":  "SKILL.md",
-                                         "sha256":  "578E08857D43C437882DCC5374FC00FE29F4DDA3B4635C7068936955107F43A5"
+                                         "sha256":  "1FA91257EC019BBF514D0660C338F08FE15786E0A19EDA5AAF17AB5C4EB05E5A"
                                      }
                                  ]
                    },

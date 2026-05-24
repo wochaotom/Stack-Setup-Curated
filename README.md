@@ -158,6 +158,23 @@ When auditing or preparing setup for a platform:
 
 Conversion is a bridge for gaps, not the default acquisition path.
 
+### Minimal Install Policy
+
+Install the smallest reviewed thing that satisfies the active workflow.
+
+1. Install one native skill/plugin for the current job, not a broad stack.
+2. Prefer narrow domain bundles over complete bundles.
+3. Prefer linking or converting a pattern over installing a risky runtime
+   package when scripts, tools, auth, hooks, MCP servers, or legal/cyber
+   high-risk behavior are not needed.
+4. Do not add MCP servers, hooks, automations, agents, commands, or background
+   services unless the workflow needs them now and the user approves.
+5. Pin and review community marketplace sources before install.
+6. Remove or avoid stale, unused, duplicate, or overlapping setup.
+
+The default answer should be "no install yet" until the audit has a concrete
+workflow, target client, source, safety review, and verification path.
+
 ## Supported Adapter Targets
 
 The audit and converter reason about these clients:
