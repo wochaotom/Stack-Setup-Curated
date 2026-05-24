@@ -104,6 +104,13 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 - Before recommending installation from any discovery-only index, inspect the original GitHub repository, `SKILL.md`, scripts, hooks, install steps, network calls, and permissions.
 - Pin external skills to a commit/ref when possible, and record why the repo needs that skill.
 - Never recommend installing a skill solely because it is listed in a directory.
+- Any marketplace can be a candidate acquisition source when a needed skill or
+  plugin only exists there, but the marketplace listing is not enough. Inspect
+  the original source, maintainer, license, scripts, install steps, network
+  calls, permissions, and pinned version before recommending it.
+- When the target platform is missing a capability, check Claude Code and Codex
+  ecosystems early because they often have mature skill/plugin coverage, but do
+  not stop there if the only good source is another marketplace.
 
 ## Native-First Selection Policy
 
@@ -117,17 +124,22 @@ Selection order:
    actually use.
 2. Target-native adjacent match: a close equivalent in the same client that can
    be configured without losing safety, provenance, or expected behavior.
-3. Cross-platform source: another ecosystem's skill/plugin, such as Claude Code,
-   Codex, GitHub Copilot, Cursor, or Agent Skills repositories, only when the
-   target lacks a native or adjacent option.
-4. Conversion: convert only the smallest feasible artifact and only after
+3. Cross-platform source: another ecosystem's skill/plugin only when the target
+   lacks a native or adjacent option. Check Claude Code and Codex first when
+   they are likely to have mature coverage, then inspect any other marketplace
+   where the needed skill/plugin exists.
+4. Marketplace-only source: allow any marketplace as the source only when the
+   needed skill/plugin exists there and the original source passes provenance,
+   license, permission, install, and runtime-feature review.
+5. Conversion: convert only the smallest feasible artifact and only after
    inspecting source provenance, scripts, permissions, install steps, bundled
    resources, and platform-exclusive features.
 
 Do not make Codex the source of truth for other platforms. Do not make Claude
 Code the source of truth either. Use the strongest native ecosystem for the
 target platform first, then borrow across ecosystems only to fill a documented
-gap.
+gap. Claude Code and Codex can be first cross-ecosystem checks after a target
+gap is proven; they are not exclusive sources.
 
 ## Skill And Plugin Conversion
 
@@ -141,7 +153,7 @@ Conversion rules:
 
 - Conversion is last-resort acquisition. Search the target platform's official
   marketplace/plugins/skills first, then adjacent native equivalents, then other
-  platform ecosystems.
+  platform ecosystems and marketplace-only sources with provenance review.
 - Prefer native Agent Skill folders when the target's official docs support them, such as `.github/skills`, `.cursor/skills`, `.opencode/skills`, `.cline/skills`, or `.windsurf/skills`.
 - For targets without a native or close-equivalent skill folder, emit instruction-only artifacts only for simple skills with no bundled resources. Examples: Aider conventions, Continue checks, and Roo rules.
 - Block conversions that would drop supporting files, scripts, assets, MCP servers, hooks, tools, auth, or client-exclusive plugin behavior. Use `-AllowPartial` only when the user explicitly accepts a lossy instruction-only artifact after review.

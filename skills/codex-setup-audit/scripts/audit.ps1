@@ -71,7 +71,8 @@ function Get-ModelPlan() {
 
 function Get-SafeSourcePolicy() {
     return @(
-        "Use a native-first selection order: target platform marketplace/plugin/skill first, adjacent target-native equivalent second, cross-platform conversion last.",
+        "Use a native-first selection order: target platform marketplace/plugin/skill first, adjacent target-native equivalent second, cross-ecosystem acquisition and conversion last.",
+        "If the target lacks a capability, check Claude Code and Codex ecosystems early when relevant, then allow any other marketplace as a source only when the needed skill/plugin exists there and passes source review.",
         "Prefer first-party client docs and registries for each target adapter instead of assuming one client's artifact format works everywhere.",
         "Use Agent Skills, OpenAI, Anthropic, GitHub Copilot, Cursor, Google Antigravity/Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, and Windsurf official docs as compatibility sources with review.",
         "Treat broad community directories as discovery-only and inspect original repos before recommending.",
@@ -83,8 +84,9 @@ function Get-NativeFirstSelectionPolicy() {
     return @(
         "1. Target-native exact match: search the chosen client's official marketplace, built-in plugins, native skills, rules, commands, agents, hooks, MCP docs, and extension model.",
         "2. Target-native adjacent match: prefer a close same-client equivalent when it preserves the behavior safely.",
-        "3. Cross-platform source: inspect another ecosystem, such as Claude Code, Codex, GitHub Copilot, Cursor, or Agent Skills repositories, only after native and adjacent target options are missing.",
-        "4. Conversion: convert the smallest feasible artifact and block conversion when scripts, assets, MCP servers, hooks, auth, tools, agents, apps, or client-exclusive behavior would be lost."
+        "3. Cross-ecosystem source: after native and adjacent target options are missing, check Claude Code and Codex first when they are likely to have mature coverage, then inspect any other marketplace where the needed skill/plugin exists.",
+        "4. Marketplace-only source: allow any marketplace as a source only after reviewing the original repository, maintainer, license, scripts, install steps, network calls, permissions, and pinned version.",
+        "5. Conversion: convert the smallest feasible artifact and block conversion when scripts, assets, MCP servers, hooks, auth, tools, agents, apps, or client-exclusive behavior would be lost."
     )
 }
 
@@ -93,7 +95,7 @@ function Get-ClientPlan() {
         "Start from capabilities first: context/rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification.",
         "Map those capabilities through client adapters instead of making Codex, Claude Code, Cursor, or any other client the default answer.",
         "For each target client, search native plugins, skills, marketplaces, rules, commands, agents, hooks, and MCP recipes before considering another platform's skill.",
-        "Use cross-platform conversion only when the target platform lacks a native or adjacent capability, and record why the source ecosystem was chosen.",
+        "Use cross-ecosystem conversion only when the target platform lacks a native or adjacent capability; check Claude Code and Codex early when relevant, but allow any sole-source marketplace after provenance review.",
         "Prefer portable artifacts such as AGENTS.md and Agent Skills when they fit; use client-specific files only where the client's docs back the behavior.",
         "Examples: Cursor uses `.cursor/rules`; Antigravity: use MCP config, permissions, hooks, and agents only through documented Antigravity/Gemini mechanisms.",
         "Treat unsupported capabilities as explicit gaps with verification notes, not as silent promises."
@@ -387,7 +389,7 @@ function Get-HarnessAudit() {
 function Get-DiscussionQuestions() {
     $questions = @()
     $questions += "Which AI clients should this repo actually support: Codex, Claude Code, GitHub Copilot, Cursor, Antigravity, Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, Windsurf, or a portable AGENTS.md/Agent Skills baseline?"
-    $questions += "For each chosen client, which native marketplace/plugin/skill source should be checked before considering cross-platform conversion?"
+    $questions += "For each chosen client, which native marketplace/plugin/skill source should be checked first, and which cross-ecosystem marketplaces are acceptable if the skill/plugin only exists there?"
     if ($signals.looksLikeSourceLift) {
         $questions += "Should catalog refreshes remain manual, or is there a real supplier cadence that justifies automation?"
         $questions += "Who is allowed to approve edits to raw source files versus generated catalog outputs?"
@@ -408,7 +410,7 @@ function Get-SetupPlan() {
         }
         return @(
             "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
-            "Search each target client's native ecosystem first, then document any missing capability before considering cross-platform conversion.",
+            "Search each target client's native ecosystem first, then check Claude Code, Codex, and any sole-source marketplace only after documenting the missing capability.",
             "Write or update AGENTS.md/rules with source-catalog boundaries, verification commands, and raw/generated file policy.",
             $skillStep,
             "Run the catalog build, JSON/workbook checks, and one UI smoke workflow before adding hooks or automations."
@@ -416,7 +418,7 @@ function Get-SetupPlan() {
     }
     return @(
         "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
-        "Search each target client's native ecosystem first, then document any missing capability before considering cross-platform conversion.",
+        "Search each target client's native ecosystem first, then check Claude Code, Codex, and any sole-source marketplace only after documenting the missing capability.",
         "Write or update AGENTS.md/rules with repo-specific boundaries and verification commands.",
         "Install or enable only the confirmed high-fit plugin/app/skill items, preferring vetted sources and explicit user approval.",
         "Run the listed verification commands and one representative workflow before adding hooks or automations."

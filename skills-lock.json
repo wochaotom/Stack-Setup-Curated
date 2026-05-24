@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "SHA256",
-  "generatedAt": "2026-05-24T00:48:35.3632010Z",
+  "generatedAt": "2026-05-24T01:03:21.6264014Z",
   "skills": [
     {
       "name": "autoresearch",
@@ -75,7 +75,7 @@
     },
     {
       "name": "codex-setup-audit",
-      "bundleSha256": "4019AC52172A80FF081B88C93055C30D629B9E12656C7339353AB625E82EFCF8",
+      "bundleSha256": "E4EF5FFEE04993E09D3BFCF72F83F869A05AC518A13221B597114C456BEBBC56",
       "files": [
         {
           "path": "agents\\openai.yaml",
@@ -83,7 +83,7 @@
         },
         {
           "path": "scripts\\audit.ps1",
-          "sha256": "FBA592DFD38C9035F8612D8E71A4E1384A36952D89ECF79BE56801EE0F70A4A3"
+          "sha256": "E052442336CB7D95262800910B72A70A098FF57924CDFD1A3ECDA596F1BA61A3"
         },
         {
           "path": "scripts\\convert_skill.ps1",
@@ -99,11 +99,11 @@
         },
         {
           "path": "scripts\\self_test.ps1",
-          "sha256": "FCC651C4C5F28198587AE5C98BC6435476DA8434CE49EC639C16FEE6C1AF495A"
+          "sha256": "069DF2654F284577FED41039B769503F3F86AEB3AED95AB0E00C8F826B2A17B6"
         },
         {
           "path": "SKILL.md",
-          "sha256": "FF38ECB8F11A8CE687FACB78BFCA7B719381B777A58ABCC5D4A0920A1B6665F1"
+          "sha256": "578E08857D43C437882DCC5374FC00FE29F4DDA3B4635C7068936955107F43A5"
         }
       ]
     },

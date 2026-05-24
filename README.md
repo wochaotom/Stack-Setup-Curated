@@ -13,7 +13,11 @@ high-value skills in a reviewed repo, verify their hashes, sync them into Codex,
 and make cross-agent setup decisions from official sources instead of guesswork.
 For cross-platform setup, target-native plugins, skills, rules, commands, and
 marketplaces come first. Conversion from another platform's skill is the fallback
-only when the target platform lacks a native or close-equivalent option.
+only when the target platform lacks a native or close-equivalent option. When a
+capability is missing on the target, Claude Code and Codex are reasonable first
+cross-ecosystem checks, but any marketplace can be a source if the needed
+skill/plugin only exists there and passes provenance, license, permission, and
+runtime-feature review.
 
 ```powershell
 npx skills@latest add wochaotom/Stack-Setup-Curated --list
@@ -142,9 +146,13 @@ When auditing or preparing setup for a platform:
 2. If there is no exact native match, look for a close target-native equivalent
    that can be configured safely.
 3. Only when the target platform lacks a native or adjacent option, inspect
-   another platform's skill ecosystem, such as Claude Code or Codex, and convert
-   the smallest feasible skill.
-4. Block conversion when platform-exclusive features would be dropped: MCP
+   cross-ecosystem sources. Check Claude Code and Codex first when they are
+   likely to have mature coverage, then inspect any other marketplace if the
+   needed skill/plugin only exists there.
+4. Treat marketplace-only sources as untrusted until reviewed: inspect the
+   original repository, maintainer, license, scripts, install steps, network
+   calls, permissions, and pinned version.
+5. Block conversion when platform-exclusive features would be dropped: MCP
    servers, hooks, auth, tools, agents, scripts, assets, apps, or other runtime
    behavior.
 
@@ -278,8 +286,10 @@ skill.
 
 Marketplace and `npx skills` discovery is useful for install mechanics, but it
 does not replace platform-native source review. Prefer the target platform's
-official ecosystem first, then use cross-platform conversion only for missing
-capabilities with reviewable provenance.
+official ecosystem first. If the capability is missing there, Claude Code and
+Codex are good first cross-ecosystem checks, and any other marketplace can be a
+source when the skill/plugin only exists there and the original source passes
+provenance, license, permission, and runtime-feature review.
 
 ## Requirements
 
