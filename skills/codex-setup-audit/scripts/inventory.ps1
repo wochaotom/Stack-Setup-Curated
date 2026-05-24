@@ -19,7 +19,12 @@ function Read-Text($LiteralPath, $MaxChars = 20000) {
 
 function Get-RelativePathSafe($Base, $FullName) {
     try {
-        return [System.IO.Path]::GetRelativePath($Base, $FullName)
+        $baseFull = [System.IO.Path]::GetFullPath($Base).TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+        $targetFull = [System.IO.Path]::GetFullPath($FullName)
+        $baseUri = [System.Uri]::new($baseFull)
+        $targetUri = [System.Uri]::new($targetFull)
+        $relative = [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString())
+        return $relative.Replace("/", [System.IO.Path]::DirectorySeparatorChar)
     } catch {
         return $FullName
     }

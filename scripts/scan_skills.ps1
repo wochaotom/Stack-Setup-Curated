@@ -19,12 +19,21 @@ $sourceRootFull = [System.IO.Path]::GetFullPath($SourceRoot)
 $skillsRoot = Join-Path $sourceRootFull "skills"
 $findings = @()
 
+function Get-RelativePathCompat($BasePath, $FullPath) {
+    $baseFull = [System.IO.Path]::GetFullPath($BasePath).TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    $targetFull = [System.IO.Path]::GetFullPath($FullPath)
+    $baseUri = [System.Uri]::new($baseFull)
+    $targetUri = [System.Uri]::new($targetFull)
+    $relative = [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString())
+    return $relative.Replace("/", [System.IO.Path]::DirectorySeparatorChar)
+}
+
 if (-not (Test-Path -LiteralPath $skillsRoot)) {
     $findings += New-Finding "critical" "missing-skills-directory" "skills" 0 "Source root does not contain a skills directory."
 } else {
     $files = @(Get-ChildItem -LiteralPath $skillsRoot -Recurse -File -Force | Sort-Object FullName)
     foreach ($file in $files) {
-        $relative = [System.IO.Path]::GetRelativePath($sourceRootFull, $file.FullName)
+        $relative = Get-RelativePathCompat $sourceRootFull $file.FullName
         $extension = $file.Extension.ToLowerInvariant()
         $isPowerShell = $extension -in @(".ps1", ".psm1", ".psd1")
         $isSkillEntrypoint = $file.Name -eq "SKILL.md"

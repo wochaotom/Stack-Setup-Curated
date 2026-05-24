@@ -11,11 +11,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-RelativePathCompat($BasePath, $FullPath) {
+    $baseFull = [System.IO.Path]::GetFullPath($BasePath).TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    $targetFull = [System.IO.Path]::GetFullPath($FullPath)
+    $baseUri = [System.Uri]::new($baseFull)
+    $targetUri = [System.Uri]::new($targetFull)
+    $relative = [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString())
+    return $relative.Replace("/", [System.IO.Path]::DirectorySeparatorChar)
+}
+
 function Get-RelativeFileHashes($Root) {
     $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path
     $manifest = @{}
     Get-ChildItem -LiteralPath $resolvedRoot -Recurse -File -Force | Sort-Object FullName | ForEach-Object {
-        $relative = [System.IO.Path]::GetRelativePath($resolvedRoot, $_.FullName)
+        $relative = Get-RelativePathCompat $resolvedRoot $_.FullName
         $manifest[$relative] = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash
     }
     return $manifest

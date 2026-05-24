@@ -1,0 +1,16 @@
+finding_id	repo	pattern	value_for_us	caution	evidence
+MP01	anthropic-cybersecurity-skills	single Claude marketplace entry points at repo root	Simple top-level package for one broad plugin	One giant plugin makes selective install harder	repo@0f429d0:.claude-plugin/marketplace.json
+MP02	privacy-data-protection-skills	one marketplace with 21 domain plugins	Good pattern for modular domain bundles	Needs generated copies or drift checks	repo@9b2ef9e:.claude-plugin/marketplace.json
+MP03	privacy-data-protection-skills	complete bundle plus domain-specific bundles	Supports all-in or narrow install surfaces	Complete bundle should be marked high-review	repo@9b2ef9e:.claude-plugin/marketplace.json
+MP04	both	Apache-2.0 license declared in repo metadata and marketplace	License metadata can be machine-read	Still verify nested third-party content if vendoring	repo@0f429d0:LICENSE; repo@9b2ef9e:LICENSE
+MP05	both	SECURITY.md present	Useful minimum maturity signal	Security policy does not prove content accuracy	repo@0f429d0:SECURITY.md; repo@9b2ef9e:SECURITY.md
+MP06	privacy-data-protection-skills	CITATION.cff present	Useful provenance and dataset citation marker	Citation does not validate regulatory correctness	repo@9b2ef9e:CITATION.cff
+MP07	anthropic-cybersecurity-skills	index.json provides machine-readable catalog	Useful for search and scoring	Index can contain false positives for secret-shaped strings	repo@0f429d0:index.json
+MP08	privacy-data-protection-skills	plugin descriptions include counts and domains	Good install decision UX	Counts must be verifier-checked against filesystem	repo@9b2ef9e:.claude-plugin/marketplace.json
+MP09	privacy-data-protection-skills	per-plugin .claude-plugin/plugin.json	Portable pattern for segmented Claude installs	Minimal metadata lacks repository/license details inside each plugin	repo@9b2ef9e:plugins/gdpr-compliance-skills/.claude-plugin/plugin.json
+MP10	anthropic-cybersecurity-skills	root .claude-plugin/plugin.json has version mismatch risk	Shows need for manifest/readme/count consistency checks	Root manifest said 753 while marketplace/README said 754 in earlier inspection	repo@0f429d0:.claude-plugin/plugin.json; .claude-plugin/marketplace.json
+MP11	both	no native Codex plugin manifest in repo root	Need conversion layer rather than assuming Claude plugin works in Codex	Codex plugin authority must come from Codex docs	repo@0f429d0:.claude-plugin; repo@9b2ef9e:.claude-plugin
+MP12	privacy-data-protection-skills	domain plugin taxonomy maps directly to source-policy categories	Good basis for source scoring and selective allowlists	Regulatory categories need freshness metadata	repo@9b2ef9e:.claude-plugin/marketplace.json
+MP13	anthropic-cybersecurity-skills	large monolithic cyber catalog	Good adversarial scanner test corpus	Too broad for default user install	repo@0f429d0:README.md; skills/
+MP14	both	README quick-start encourages marketplace install	Good public user path	Our docs should insist on pinned/reviewed installs for community sources	repo@0f429d0:README.md; repo@9b2ef9e:README.md
+MP15	both	community marketplace listings can be useful sole-source candidates	Aligns with native-first plus marketplace fallback policy	Only after original repo provenance and runtime review	repo@0f429d0:.claude-plugin/marketplace.json; repo@9b2ef9e:.claude-plugin/marketplace.json

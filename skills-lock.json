@@ -1,125 +1,125 @@
-{
-  "version": 1,
-  "algorithm": "SHA256",
-  "generatedAt": "2026-05-24T01:03:21.6264014Z",
-  "skills": [
-    {
-      "name": "autoresearch",
-      "bundleSha256": "E274F1FE12FDD10B85CED4A7999176BA08231F61E1F36F823A558B297E977F57",
-      "files": [
-        {
-          "path": "agents\\openai.yaml",
-          "sha256": "4C0CFC461B870BBE9BFEC557BEB7E335841C09A780C6B07329825E3FC2AEB961"
-        },
-        {
-          "path": "LICENSE",
-          "sha256": "36FE186F404FA529A4C290A5C671E0DD07162BE0C3270C02E1CDC831E97BF127"
-        },
-        {
-          "path": "references\\autonomous-loop-protocol.md",
-          "sha256": "E37D6925D3AF465C1C1A78127A77F66A8BC2441D0D692364B2E761CDAF52F125"
-        },
-        {
-          "path": "references\\core-principles.md",
-          "sha256": "10F2368613F7CA6948CFC31334E6AF2D12161178969AFD37FB552E01623B2E36"
-        },
-        {
-          "path": "references\\debug-workflow.md",
-          "sha256": "3B82E9FEE0F9D8962D783293CAC60CC5F863A84492A125667138956D92D9278F"
-        },
-        {
-          "path": "references\\fix-workflow.md",
-          "sha256": "EDF54B1D38332C99B252918C3F934EBBAE82B80B787B862CEF87FC3C762EB603"
-        },
-        {
-          "path": "references\\learn-workflow.md",
-          "sha256": "3A20C1F8B22B3B753AFF00525A50F2E1068C3D3B5AEC546A23D3FB740DADC957"
-        },
-        {
-          "path": "references\\plan-workflow.md",
-          "sha256": "FB1D6949D0B5783B0928ACD7143C96A441B265A2C34AE12053E9AB3BD2145CD3"
-        },
-        {
-          "path": "references\\predict-workflow.md",
-          "sha256": "A215B4EC875308F2D2A64F84E558C2F2CCEB0BD7D568D4F6747CD930B8581E52"
-        },
-        {
-          "path": "references\\probe-workflow.md",
-          "sha256": "89EDFB863B2FF45EFC24132E764AA2D998AA245A986422E92CB3E066C6011E81"
-        },
-        {
-          "path": "references\\reason-workflow.md",
-          "sha256": "FD0BE5969F03CC71198A7D5C3BFA3A04BB39E312A39B052F474A63A70718A72D"
-        },
-        {
-          "path": "references\\results-logging.md",
-          "sha256": "ECF05CE7BC201B9009D162D59A7BD3226CE830473B049EDAD047EB9D3EAF66DC"
-        },
-        {
-          "path": "references\\scenario-workflow.md",
-          "sha256": "6AC99D8A5928E1A8D879288E8D446A51DB64340D96AF9E4D4277449932988FBC"
-        },
-        {
-          "path": "references\\security-workflow.md",
-          "sha256": "381F3277E8611AC163A395A66F27F4FB0C664C14FC49DA1BD38AF551EAD13845"
-        },
-        {
-          "path": "references\\ship-workflow.md",
-          "sha256": "A74AF49D75DFAFC2916CEFB4BA6F576C9F8D5D818D51B36A3D53FC6B865E9B44"
-        },
-        {
-          "path": "SKILL.md",
-          "sha256": "6FD09EBA4163F9D5FCA1F6E41F72D810106779000BD540E561254E7DB3744388"
-        }
-      ]
-    },
-    {
-      "name": "codex-setup-audit",
-      "bundleSha256": "E4EF5FFEE04993E09D3BFCF72F83F869A05AC518A13221B597114C456BEBBC56",
-      "files": [
-        {
-          "path": "agents\\openai.yaml",
-          "sha256": "FFF01FA38E2A190243F6B6D8E36077BC4003C82C2AFF081E84FD678461E8FE2B"
-        },
-        {
-          "path": "scripts\\audit.ps1",
-          "sha256": "E052442336CB7D95262800910B72A70A098FF57924CDFD1A3ECDA596F1BA61A3"
-        },
-        {
-          "path": "scripts\\convert_skill.ps1",
-          "sha256": "86EA09C82E35AE2DDAE0FA94E7118B0171FB4187A356C9638ABAC2C2A5910E97"
-        },
-        {
-          "path": "scripts\\fixture_test.ps1",
-          "sha256": "9399EE616357E63AAFD4C58085B267D07F09A5A0E4ECA2BCC6C72D6470350281"
-        },
-        {
-          "path": "scripts\\inventory.ps1",
-          "sha256": "4195DF0B1F3415C2A813B83637236BE1C80FC2ACD26DAB0593DEB73B6EC3F154"
-        },
-        {
-          "path": "scripts\\self_test.ps1",
-          "sha256": "069DF2654F284577FED41039B769503F3F86AEB3AED95AB0E00C8F826B2A17B6"
-        },
-        {
-          "path": "SKILL.md",
-          "sha256": "578E08857D43C437882DCC5374FC00FE29F4DDA3B4635C7068936955107F43A5"
-        }
-      ]
-    },
-    {
-      "name": "sourcelift-catalog-refresh",
-      "bundleSha256": "4EF5AF45B0AF963983DA60978EB4E53F2F11149595D4B4F431EEFF4A4CC2C920",
-      "files": [
-        {
-          "path": "agents\\openai.yaml",
-          "sha256": "D18D0D6212A963857271A6D531AEF4CD0154CD75BB143886D4AFAFF1E49563CA"
-        },
-        {
-          "path": "SKILL.md",
-          "sha256": "D5C0B2A026B23AA5D3E61E8CEF35E778B4BAEB5A6575AB2763A078C9A1DAC7D7"
-        }
-      ]
-    }
-  ]
+﻿{
+    "version":  1,
+    "algorithm":  "SHA256",
+    "generatedAt":  "2026-05-24T14:03:34.1513831Z",
+    "skills":  [
+                   {
+                       "name":  "autoresearch",
+                       "bundleSha256":  "E274F1FE12FDD10B85CED4A7999176BA08231F61E1F36F823A558B297E977F57",
+                       "files":  [
+                                     {
+                                         "path":  "agents\\openai.yaml",
+                                         "sha256":  "4C0CFC461B870BBE9BFEC557BEB7E335841C09A780C6B07329825E3FC2AEB961"
+                                     },
+                                     {
+                                         "path":  "LICENSE",
+                                         "sha256":  "36FE186F404FA529A4C290A5C671E0DD07162BE0C3270C02E1CDC831E97BF127"
+                                     },
+                                     {
+                                         "path":  "references\\autonomous-loop-protocol.md",
+                                         "sha256":  "E37D6925D3AF465C1C1A78127A77F66A8BC2441D0D692364B2E761CDAF52F125"
+                                     },
+                                     {
+                                         "path":  "references\\core-principles.md",
+                                         "sha256":  "10F2368613F7CA6948CFC31334E6AF2D12161178969AFD37FB552E01623B2E36"
+                                     },
+                                     {
+                                         "path":  "references\\debug-workflow.md",
+                                         "sha256":  "3B82E9FEE0F9D8962D783293CAC60CC5F863A84492A125667138956D92D9278F"
+                                     },
+                                     {
+                                         "path":  "references\\fix-workflow.md",
+                                         "sha256":  "EDF54B1D38332C99B252918C3F934EBBAE82B80B787B862CEF87FC3C762EB603"
+                                     },
+                                     {
+                                         "path":  "references\\learn-workflow.md",
+                                         "sha256":  "3A20C1F8B22B3B753AFF00525A50F2E1068C3D3B5AEC546A23D3FB740DADC957"
+                                     },
+                                     {
+                                         "path":  "references\\plan-workflow.md",
+                                         "sha256":  "FB1D6949D0B5783B0928ACD7143C96A441B265A2C34AE12053E9AB3BD2145CD3"
+                                     },
+                                     {
+                                         "path":  "references\\predict-workflow.md",
+                                         "sha256":  "A215B4EC875308F2D2A64F84E558C2F2CCEB0BD7D568D4F6747CD930B8581E52"
+                                     },
+                                     {
+                                         "path":  "references\\probe-workflow.md",
+                                         "sha256":  "89EDFB863B2FF45EFC24132E764AA2D998AA245A986422E92CB3E066C6011E81"
+                                     },
+                                     {
+                                         "path":  "references\\reason-workflow.md",
+                                         "sha256":  "FD0BE5969F03CC71198A7D5C3BFA3A04BB39E312A39B052F474A63A70718A72D"
+                                     },
+                                     {
+                                         "path":  "references\\results-logging.md",
+                                         "sha256":  "ECF05CE7BC201B9009D162D59A7BD3226CE830473B049EDAD047EB9D3EAF66DC"
+                                     },
+                                     {
+                                         "path":  "references\\scenario-workflow.md",
+                                         "sha256":  "6AC99D8A5928E1A8D879288E8D446A51DB64340D96AF9E4D4277449932988FBC"
+                                     },
+                                     {
+                                         "path":  "references\\security-workflow.md",
+                                         "sha256":  "381F3277E8611AC163A395A66F27F4FB0C664C14FC49DA1BD38AF551EAD13845"
+                                     },
+                                     {
+                                         "path":  "references\\ship-workflow.md",
+                                         "sha256":  "A74AF49D75DFAFC2916CEFB4BA6F576C9F8D5D818D51B36A3D53FC6B865E9B44"
+                                     },
+                                     {
+                                         "path":  "SKILL.md",
+                                         "sha256":  "6FD09EBA4163F9D5FCA1F6E41F72D810106779000BD540E561254E7DB3744388"
+                                     }
+                                 ]
+                   },
+                   {
+                       "name":  "codex-setup-audit",
+                       "bundleSha256":  "444D43D6E1B6D2AE11DE2129B905D2656D73864E7964FCC4A010F25117F11B3C",
+                       "files":  [
+                                     {
+                                         "path":  "agents\\openai.yaml",
+                                         "sha256":  "FFF01FA38E2A190243F6B6D8E36077BC4003C82C2AFF081E84FD678461E8FE2B"
+                                     },
+                                     {
+                                         "path":  "scripts\\audit.ps1",
+                                         "sha256":  "E052442336CB7D95262800910B72A70A098FF57924CDFD1A3ECDA596F1BA61A3"
+                                     },
+                                     {
+                                         "path":  "scripts\\convert_skill.ps1",
+                                         "sha256":  "86EA09C82E35AE2DDAE0FA94E7118B0171FB4187A356C9638ABAC2C2A5910E97"
+                                     },
+                                     {
+                                         "path":  "scripts\\fixture_test.ps1",
+                                         "sha256":  "9399EE616357E63AAFD4C58085B267D07F09A5A0E4ECA2BCC6C72D6470350281"
+                                     },
+                                     {
+                                         "path":  "scripts\\inventory.ps1",
+                                         "sha256":  "BAE7BA2D6DA25D87763442B3B3DEBDD5295B9157BD8E61F2D33C93A34A4BC902"
+                                     },
+                                     {
+                                         "path":  "scripts\\self_test.ps1",
+                                         "sha256":  "069DF2654F284577FED41039B769503F3F86AEB3AED95AB0E00C8F826B2A17B6"
+                                     },
+                                     {
+                                         "path":  "SKILL.md",
+                                         "sha256":  "578E08857D43C437882DCC5374FC00FE29F4DDA3B4635C7068936955107F43A5"
+                                     }
+                                 ]
+                   },
+                   {
+                       "name":  "sourcelift-catalog-refresh",
+                       "bundleSha256":  "4EF5AF45B0AF963983DA60978EB4E53F2F11149595D4B4F431EEFF4A4CC2C920",
+                       "files":  [
+                                     {
+                                         "path":  "agents\\openai.yaml",
+                                         "sha256":  "D18D0D6212A963857271A6D531AEF4CD0154CD75BB143886D4AFAFF1E49563CA"
+                                     },
+                                     {
+                                         "path":  "SKILL.md",
+                                         "sha256":  "D5C0B2A026B23AA5D3E61E8CEF35E778B4BAEB5A6575AB2763A078C9A1DAC7D7"
+                                     }
+                                 ]
+                   }
+               ]
 }
