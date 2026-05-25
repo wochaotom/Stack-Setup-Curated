@@ -1,6 +1,6 @@
 # Contributing
 
-This repository is a curated Codex skill bundle. Keep changes small, evidence
+This repository is a curated Agent Skills bundle. Keep changes small, evidence
 backed, and easy to review.
 
 ## Source Of Truth
@@ -21,11 +21,11 @@ After changing any skill file:
 & .\scripts\harness_test.ps1
 ```
 
-After changing `skills/codex-setup-audit`, also run:
+After changing `skills/stack-setup-audit`, also run:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
-& .\skills\codex-setup-audit\scripts\fixture_test.ps1
+& .\skills\stack-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
+& .\skills\stack-setup-audit\scripts\fixture_test.ps1
 ```
 
 Before committing:

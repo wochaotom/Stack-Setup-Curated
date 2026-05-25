@@ -1,5 +1,5 @@
 ---
-name: codex-setup-audit
+name: stack-setup-audit
 description: Use when the user asks for repo onboarding, AI coding assistant setup, cross-client agent configuration, or recommendations for skills, MCP/tools, hooks, commands, agents, automations, rules, permissions, or verification harnesses.
 ---
 
@@ -29,19 +29,19 @@ Vault-derived operating lens: treat skills, MCP servers, hooks, rules, memories,
 1. Run the audit helper:
 
 ```powershell
-& "$env:USERPROFILE\.codex\skills\codex-setup-audit\scripts\audit.ps1" -Path (Get-Location)
+& "$env:USERPROFILE\.codex\skills\stack-setup-audit\scripts\audit.ps1" -Path (Get-Location)
 ```
 
 2. If the user asks for one recommendation type, pass `-Focus` with one of `mcp`, `plugins`, `skills`, `hooks`, `subagents`, `commands`, `automations`, `rules`, or `local`:
 
 ```powershell
-& "$env:USERPROFILE\.codex\skills\codex-setup-audit\scripts\audit.ps1" -Path (Get-Location) -Focus hooks
+& "$env:USERPROFILE\.codex\skills\stack-setup-audit\scripts\audit.ps1" -Path (Get-Location) -Focus hooks
 ```
 
 3. If the user asks for more depth, run the inventory helper and read only the most relevant files it discovers:
 
 ```powershell
-& "$env:USERPROFILE\.codex\skills\codex-setup-audit\scripts\inventory.ps1" -Path (Get-Location)
+& "$env:USERPROFILE\.codex\skills\stack-setup-audit\scripts\inventory.ps1" -Path (Get-Location)
 ```
 
 Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow files, docs plans, and existing config.
@@ -171,7 +171,7 @@ setup as bloat to avoid or remove.
 Use `convert_skill.ps1` only after choosing a target platform. It writes reviewable artifacts into an output directory; it does not install or enable anything by itself.
 
 ```powershell
-& "$env:USERPROFILE\.codex\skills\codex-setup-audit\scripts\convert_skill.ps1" -SourcePath <skill-or-plugin> -Target github-copilot -OutputPath <out> -Json
+& "$env:USERPROFILE\.codex\skills\stack-setup-audit\scripts\convert_skill.ps1" -SourcePath <skill-or-plugin> -Target github-copilot -OutputPath <out> -Json
 ```
 
 Conversion rules:

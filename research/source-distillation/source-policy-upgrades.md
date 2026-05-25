@@ -53,7 +53,7 @@ Evidence base:
 
 ## Prioritized Implementation Backlog
 
-1. P0: Add source scorecard output to `codex-setup-audit` JSON for community marketplace candidates.
+1. P0: Add source scorecard output to `stack-setup-audit` JSON for community marketplace candidates.
    Evidence: `repo-scorecards.tsv` shows trust and install safety diverge.
 
 2. P0: Extend `scan_skills.ps1` with review-level findings for fetch-execute, secret fixtures, and offensive cyber terms.

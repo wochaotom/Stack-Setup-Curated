@@ -35,7 +35,6 @@ function Add-Rec($Bucket, $Mechanism, $Title, $Reason, $Benefit, $Safety = "", $
 function Get-RiskProfile() {
     $risks = @()
     if ($signals.hasDirtyWorktree) { $risks += "dirty worktree" }
-    if ($signals.hasExcelInputs -or $signals.looksLikeSourceLift) { $risks += "raw/generated data boundary" }
     if ($signals.codexHooksEnabled -or $signals.codexPluginHooksEnabled) { $risks += "host hook/plugin execution" }
     if (-not $signals.hasTests) { $risks += "weak mechanical verification" }
     if ($signals.hasCi) { $risks += "CI/release surface" }
@@ -45,9 +44,6 @@ function Get-RiskProfile() {
 }
 
 function Get-ModelFit() {
-    if ($signals.looksLikeSourceLift) {
-        return "tiered: fast inventory, strong catalog implementation, review-grade pricing/provenance decisions"
-    }
     if ($signals.hasFrontendDeps -or $signals.hasBackendDeps -or $signals.hasTypeScript) {
         return "tiered: fast checks, strong implementation, review-grade architecture/security"
     }
@@ -55,13 +51,6 @@ function Get-ModelFit() {
 }
 
 function Get-ModelPlan() {
-    if ($signals.looksLikeSourceLift) {
-        return @(
-            "Fast model: inventory supplier files, count missing images/prices, and run deterministic smoke checks.",
-            "Strong coding model: update catalog generation logic, workbook export code, or local UI behavior.",
-            "Strongest/review model: review pricing policy, provenance rules, raw-data edit policy, or broad automation plans."
-        )
-    }
     return @(
         "Fast model: inventory files, run lint/test checks, and make narrow deterministic edits.",
         "Strong coding model: implement setup scripts, project rules, tests, or refactors across several files.",
@@ -126,7 +115,7 @@ function Get-PlatformSourceAuthority($Client) {
             return New-SourceAuthority @(
                 "https://github.com/openai/skills",
                 "https://agentskills.io/"
-            ) "OpenAI skills catalog and the Agent Skills standard are the source references for Codex skill bundles."
+            ) "OpenAI skills catalog and the Agent Skills standard are the source references for Agent Skills bundles."
         }
         "Claude Code" {
             return New-SourceAuthority @(
@@ -375,9 +364,6 @@ function Get-HarnessAudit() {
     }
 
     $state = "State/memory: preserve raw/generated boundaries, keep durable plans/logs path-addressable, and avoid adding memory systems without an active workflow."
-    if ($signals.looksLikeSourceLift) {
-        $state += " Catalog raw inputs should stay read-only unless explicitly approved."
-    }
 
     $contracts = "Contracts/verifiers: require at least one cheap deterministic verification command before promoting hooks, automations, or background work."
     if (-not $signals.hasTests) {
@@ -401,33 +387,13 @@ function Get-DiscussionQuestions() {
     $questions += "Which AI clients should this repo actually support: Codex, Claude Code, GitHub Copilot, Cursor, Antigravity, Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, Windsurf, or a portable AGENTS.md/Agent Skills baseline?"
     $questions += "For each chosen client, which native marketplace/plugin/skill source should be checked first, and which cross-ecosystem marketplaces are acceptable if the skill/plugin only exists there?"
     $questions += "What is the smallest install that satisfies the active workflow, and can any requested complete bundle be replaced by a narrow domain bundle, link, or conversion?"
-    if ($signals.looksLikeSourceLift) {
-        $questions += "Should catalog refreshes remain manual, or is there a real supplier cadence that justifies automation?"
-        $questions += "Who is allowed to approve edits to raw source files versus generated catalog outputs?"
-    } else {
-        $questions += "Which workflow hurts most today: onboarding, review, CI repair, docs, security, frontend QA, or release prep?"
-        $questions += "How much autonomy is acceptable: read-only recommendations, proposed patches, or scheduled/background work?"
-    }
+    $questions += "Which workflow hurts most today: onboarding, review, CI repair, docs, security, frontend QA, or release prep?"
+    $questions += "How much autonomy is acceptable: read-only recommendations, proposed patches, or scheduled/background work?"
     $questions += "Should setup optimize for cost/speed, strongest review quality, or a tiered model plan, and which action classes need explicit approval gates?"
     return $questions
 }
 
 function Get-SetupPlan() {
-    if ($signals.looksLikeSourceLift) {
-        $skillStep = if ($signals.hasSourceLiftSkill) {
-            'Use `$sourcelift-catalog-refresh` for future catalog refresh, workbook QA, pricing review, and UI proof work.'
-        } else {
-            "Create a SourceLift-specific catalog-refresh skill only if this workflow will repeat."
-        }
-        return @(
-            "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
-            "Search each target client's native ecosystem first, then check Claude Code, Codex, and any sole-source marketplace only after documenting the missing capability.",
-            "Choose the smallest reviewed install: no install, one native item, a narrow domain bundle, or link/convert before any complete bundle.",
-            "Write or update AGENTS.md/rules with source-catalog boundaries, verification commands, and raw/generated file policy.",
-            $skillStep,
-            "Run the catalog build, JSON/workbook checks, and one UI smoke workflow before adding hooks or automations."
-        )
-    }
     return @(
         "Confirm the discussion answers, especially target AI clients, autonomy level, and model budget.",
         "Search each target client's native ecosystem first, then check Claude Code, Codex, and any sole-source marketplace only after documenting the missing capability.",
@@ -440,11 +406,7 @@ function Get-SetupPlan() {
 
 function Get-VerifyPlan() {
     $verify = @()
-    if ($signals.looksLikeSourceLift) {
-        $verify += "Run the catalog build command from the repo README or project rules."
-        $verify += "Check generated catalog JSON and workbook outputs exist and parse cleanly."
-        $verify += "Run one local UI smoke check if catalog UI files changed."
-    } elseif ($signals.hasNodeTests) {
+    if ($signals.hasNodeTests) {
         $verify += "Run the package test script and any detected typecheck/lint script."
     } elseif ($signals.hasPythonQuality) {
         $verify += "Run pytest and any configured Ruff/mypy/pyright checks."
@@ -493,7 +455,6 @@ function Get-DefaultFitEvidence($Mechanism) {
             @("repo inventory matched $Mechanism recommendation heuristics")
         }
     }
-    if ($signals.looksLikeSourceLift) { $evidence += "SourceLift/Great Homes Source text plus catalog structure detected" }
     if ($signals.hasLocalSkillBundle) { $evidence += "local Agent Skills bundle detected under skills/" }
     if ($signals.hasFrontendDeps) { $evidence += "frontend dependencies detected" }
     if ($signals.hasBackendDeps) { $evidence += "backend dependencies detected" }
@@ -542,12 +503,6 @@ if (Test-Path -LiteralPath (Join-Path $root "skills")) {
 }
 $hasLocalSkillBundle = $localSkillFiles.Count -gt 0
 $hasStaticApp = Test-Path -LiteralPath (Join-Path $root "app\index.html")
-$hasCatalogBuilder = Test-Path -LiteralPath (Join-Path $root "scripts\build_catalog.py")
-$hasExcelInputs = [bool]((Get-ChildItem -LiteralPath $root -Recurse -File -Filter "*.xlsx" -ErrorAction SilentlyContinue | Select-Object -First 1))
-$hasCatalogData = (Test-Path -LiteralPath (Join-Path $root "app\data\catalog.json")) -or (Test-Path -LiteralPath (Join-Path $root "outputs\great_homes_source_catalog.xlsx"))
-$hasSourceLiftPlan = Test-Path -LiteralPath (Join-Path $root "_knowledge_base\plan-source-price-platform-v5-20260510.md")
-$sourceLiftTextSignal = $allText -match "SourceLift|Great Homes Source|Moorizon|source catalog|line sheet|quote-ready"
-$sourceLiftStructuralSignal = $hasCatalogBuilder -or $hasExcelInputs -or $hasCatalogData -or $hasSourceLiftPlan
 
 $depNames = @()
 $scriptNames = @()
@@ -568,8 +523,6 @@ $signals = [ordered]@{
     hasDirtyWorktree = [bool](@($inventory.git.statusShort) | Where-Object { $_ -match "^( M|M |A |D |\?\?)" })
     hasLocalSkillBundle = $hasLocalSkillBundle
     hasStaticApp = $hasStaticApp
-    hasCatalogBuilder = $hasCatalogBuilder
-    hasExcelInputs = $hasExcelInputs
     hasTests = [bool](@($inventory.testFiles).Count -gt 0)
     hasCi = [bool](@($inventory.ciFiles).Count -gt 0)
     hasDocsPlans = [bool](@($inventory.docsFiles).Count -gt 0)
@@ -580,13 +533,11 @@ $signals = [ordered]@{
     hasNodeLint = [bool]($scriptNames -match "lint|format") -or [bool]($depNames -match "^(eslint|prettier)$")
     hasNodeTests = [bool]($scriptNames -match "test|vitest|jest|playwright") -or [bool]($depNames -match "^(vitest|jest|@playwright/test)$")
     hasPythonQuality = [bool]($pyprojectText -match "\[tool\.(ruff|black|pytest|mypy|pyright)")
-    looksLikeSourceLift = $sourceLiftTextSignal -and $sourceLiftStructuralSignal
     mentionsPricingRules = $allText -match "pricing|margin|markup|quote"
     mentionsProvenance = $allText -match "provenance|confidence|source health|raw-to-canonical"
     codexHooksEnabled = [bool](@($inventory.codex.configSignals.features) -match "hooks\s*=\s*true")
     codexPluginHooksEnabled = [bool](@($inventory.codex.configSignals.features) -match "plugin_hooks\s*=\s*true")
     sendbirdPluginEnabled = [bool](@($inventory.codex.configSignals.pluginSections) -match "cc@sendbird")
-    hasSourceLiftSkill = [bool](@($inventory.codex.skills) -contains "sourcelift-catalog-refresh")
 }
 
 $recommendations = @{
@@ -595,73 +546,21 @@ $recommendations = @{
     Avoid = @()
 }
 
-if ($signals.looksLikeSourceLift) {
-    Add-Rec "Immediate" "AGENTS.md/rules" "Add project rules for source-catalog safety" `
-        "This repo is a source-catalog cleanup prototype with raw Excel inputs and generated catalog outputs." `
-        "Prevents accidental edits to raw crawl files, records the build command, and keeps future agents from treating generated data as source of truth." `
-        "Keep rules short: raw files read-only, generated files replaceable, build command, verification command, and frontend visual check."
-
-    if ($signals.hasSourceLiftSkill) {
-        Add-Rec "Immediate" "skill" "Use the existing SourceLift catalog-refresh skill" `
-            "The workspace now has a dedicated skill for messy-source ingestion, canonical mapping, pricing/margin review, line-sheet/export QA, and provenance checks." `
-            "Future catalog work can start from the exact project workflow instead of a generic coding flow." `
-            "Keep it read-first and require explicit approval before durable raw-data edits."
-    } else {
-        Add-Rec "Immediate" "skill" "Create a SourceLift catalog-refresh skill" `
-            "The repeated workflow is not generic coding; it is messy-source ingestion, canonical mapping, pricing/margin review, line-sheet/export QA, and provenance checks." `
-            "A dedicated skill will make future catalog imports faster and safer than a broad setup recommender can." `
-            "Make it read-first and require explicit approval before durable edits to raw data or generated outputs."
-    }
-
-    if ($signals.hasStaticApp) {
-        Add-Rec "Optional" "plugin/app" "Use Browser only for visual QA after UI/catalog changes" `
-            "The app is a local static catalog UI, so screenshots and interaction checks are useful after frontend changes." `
-            "Catches broken layouts, missing images, and filtering/sorting regressions." `
-            "Do not attach browser runs to every prompt; run them only after UI-impacting changes."
-    }
-
-    Add-Rec "Optional" "command" "Use built-in Codex commands as the lightweight operator surface" `
-        "This project needs repeatable review and context setup, but not a heavy custom command/plugin layer yet." `
-        "Use `/init` to draft AGENTS.md, `/diff` to inspect local drift, `/review` before merge-risk changes, and `/goal` for longer improvement loops." `
-        "Keep project-specific process in skills/rules instead of inventing command files unless Codex adds first-class custom commands."
-
-    if ($signals.hasExcelInputs) {
-        Add-Rec "Optional" "plugin/app" "Use Spreadsheets for workbook inspection and export QA" `
-            "The product depends on Excel inputs/outputs, not just source code." `
-            "Lets Codex inspect sheets, formulas, image/export shape, and generated workbook quality." `
-            "Treat original supplier/crawl files as immutable unless the user explicitly asks otherwise."
-    }
-
-    Add-Rec "Optional" "automation" "Add a recurring source-health report only after pilots start" `
-        "Scheduled checks become valuable when real suppliers or refresh cadences exist." `
-        "Turns catalog drift, missing images, and price anomalies into a regular operating report." `
-        "Do not schedule recurring runs against prototype data until there is a real cadence and owner."
-
-    Add-Rec "Avoid" "MCP" "Do not add database/SaaS MCP servers yet" `
-        "This repo is still a local prototype and productized-service wedge, not a deployed Supabase/Vercel/Slack operating system." `
-        "Keeps context, auth, and failure surface small." `
-        "Add MCP only when a real external system becomes part of the daily workflow."
-
-    Add-Rec "Avoid" "hook" "Do not run catalog builds or browser checks on every prompt" `
-        "The build touches generated artifacts and visual checks are heavier than a cheap guardrail." `
-        "Avoids noisy hook failures and slow prompt submission." `
-        "Prefer explicit commands or post-change verification."
-} else {
-    if ($signals.hasLocalSkillBundle -and -not (Test-Path -LiteralPath (Join-Path $root "AGENTS.md"))) {
+if ($signals.hasLocalSkillBundle -and -not (Test-Path -LiteralPath (Join-Path $root "AGENTS.md"))) {
         Add-Rec "Immediate" "AGENTS.md/rules" "Add project rules for skill-bundle safety" `
             "This repo stores local Agent Skills and deployment scripts, so the repo copy should be the source of truth." `
             "Prevents installed-cache drift, records the verification commands, and keeps bundled skill names from being treated as target-repo identity." `
             "Keep rules short: repo skills are authoritative, installed copies are derived, run self/fixture tests before sync, and separate host Codex context from target repo evidence."
-    }
+}
 
-    if ($signals.isGitHub) {
+if ($signals.isGitHub) {
         Add-Rec "Immediate" "plugin/app" "Use GitHub integration for PR and issue work" `
             "The repo remote is on GitHub." `
             "Keeps PR metadata, reviews, and CI triage available without broad custom MCP setup." `
             "Use gh CLI for Actions logs when connector coverage is not enough."
-    }
+}
 
-    if ($signals.hasFrontendDeps) {
+if ($signals.hasFrontendDeps) {
         Add-Rec "Immediate" "plugin/app" "Use Browser for visual and interaction checks" `
             "Frontend dependencies were detected." `
             "Lets Codex verify rendered UI, screenshots, forms, and responsive behavior instead of only reading code." `
@@ -671,28 +570,27 @@ if ($signals.looksLikeSourceLift) {
             "Frontend libraries and build tools change quickly." `
             "Reduces stale API assumptions when editing framework code." `
             "Prefer official docs or a narrow docs MCP; do not add broad web/data MCP access by default."
-    }
+}
 
-    if ($signals.hasNodeLint -or $signals.hasTypeScript -or $signals.hasNodeTests) {
+if ($signals.hasNodeLint -or $signals.hasTypeScript -or $signals.hasNodeTests) {
         Add-Rec "Optional" "hook" "Use cheap JavaScript quality hooks only when scripts exist" `
             "Package scripts or dependencies indicate lint, format, typecheck, or test workflows." `
             "Catches local mistakes quickly without inventing commands." `
             "Start with explicit verification; promote to hooks only after commands are fast and stable."
-    }
+}
 
-    if ($signals.hasPythonQuality) {
+if ($signals.hasPythonQuality) {
         Add-Rec "Optional" "hook" "Use Ruff/pytest hooks only after command timing is known" `
             "Python quality tooling was detected in pyproject.toml." `
             "Gives quick feedback for formatting, linting, and tests." `
             "Avoid attaching slow full-suite runs to every edit."
-    }
 }
 
 if (-not $signals.hasTests) {
     Add-Rec "Immediate" "local environment" "Define a minimal verification command" `
         "No test files were detected, so agents need one known command that proves the core workflow still works." `
         "Reduces false confidence after changes and gives future hooks/skills a stable target." `
-        "For this repo, start with the catalog build command and a static-app smoke check."
+        "For this repo, start with the smallest command that exercises the main workflow."
 }
 
 if ($signals.hasDirtyWorktree) {
@@ -721,10 +619,8 @@ if ($signals.isSmallRepo) {
         "Keep it read-only unless explicitly implementing fixes."
 }
 
-$profileType = if ($signals.looksLikeSourceLift) {
-    "SourceLift / Great Homes Source catalog-cleanup prototype"
-} elseif ($signals.hasLocalSkillBundle) {
-    "Codex skill bundle"
+$profileType = if ($signals.hasLocalSkillBundle) {
+    "Agent Skills bundle"
 } elseif ($signals.hasStaticApp) {
     "static web app"
 } elseif ($inventory.manifests.javascript) {
@@ -737,11 +633,7 @@ $profileType = if ($signals.looksLikeSourceLift) {
 
 $report = [ordered]@{
     focus = $Focus
-    verdict = if ($signals.looksLikeSourceLift) {
-        "Worth a focused setup pass: keep the agent setup small, source-safe, and tailored to catalog cleanup."
-    } else {
-        "Use a light setup pass: add only repo-specific rules and integrations backed by detected workflows."
-    }
+    verdict = "Use a light setup pass: add only repo-specific rules and integrations backed by detected workflows."
     detected = [ordered]@{
         stack = $profileType
         filesSampled = $inventory.counts.filesSampled

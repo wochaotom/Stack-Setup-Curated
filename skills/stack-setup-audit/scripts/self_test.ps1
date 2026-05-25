@@ -8,7 +8,7 @@ $auditPath = Join-Path $scriptDir "audit.ps1"
 $convertPath = Join-Path $scriptDir "convert_skill.ps1"
 $skillPath = Join-Path (Split-Path -Parent $scriptDir) "SKILL.md"
 $yamlPath = Join-Path (Split-Path -Parent $scriptDir) "agents\openai.yaml"
-$tmpRoot = Join-Path $env:TEMP ("codex-setup-audit-self-" + [guid]::NewGuid().ToString("N"))
+$tmpRoot = Join-Path $env:TEMP ("stack-setup-audit-self-" + [guid]::NewGuid().ToString("N"))
 
 $checks = @()
 
@@ -71,8 +71,8 @@ Run `scripts/check.ps1` before reporting.
     $unsupportedConversionJson = $null
 }
 
-Add-Check "skill frontmatter" ($skill -match "^---" -and $skill -match "name:\s*codex-setup-audit" -and $skill -match "description:\s*Use when")
-Add-Check "ui metadata" ($yaml -match "display_name: `"Agent Setup Audit`"" -and $yaml -match "\$codex-setup-audit")
+Add-Check "skill frontmatter" ($skill -match "^---" -and $skill -match "name:\s*stack-setup-audit" -and $skill -match "description:\s*Use when")
+Add-Check "ui metadata" ($yaml -match "display_name: `"Agent Setup Audit`"" -and $yaml -match "\$stack-setup-audit")
 Add-Check "read-only rule" ($skill -match "Default to read-only" -and $auditText -notmatch "Install .* now|Enable .* now")
 Add-Check "core categories" ($skill -match "MCP" -and $skill -match "hooks" -and $skill -match "subagents" -and $skill -match "slash commands" -and $skill -match "automations")
 Add-Check "claude setup baseline extended" ($skill -match "Baseline reference" -and $skill -match "Claude Code Setup" -and $skill -match "go further than one-client setup")
@@ -100,7 +100,7 @@ Add-Check "audit emits client plan" ($auditText -match "Client Plan" -and $audit
 Add-Check "audit emits platform matrix" ($auditText -match "Platform Capability Matrix" -and $auditText -match "OpenCode" -and $auditText -match "Aider" -and $auditText -match "Continue" -and $auditText -match "Cline" -and $auditText -match "Roo Code" -and $auditText -match "Windsurf")
 Add-Check "audit emits discussion plan" ($auditText -match "Discuss Before Installing" -and $auditText -match "target AI clients" -and $auditText -match "cross-ecosystem marketplaces" -and $auditText -match "smallest install" -and $auditText -match "Cursor" -and $auditText -match "Antigravity")
 Add-Check "audit emits staged setup plan" ($auditText -match "Implementation Plan" -and $auditText -match "Verify Setup" -and $auditText -match "Run ")
-Add-Check "recommendations include nonduplicate fit" ($auditText -match " Fit: " -and $auditText -notmatch "Fit: This repo is a source-catalog cleanup prototype")
+Add-Check "recommendations include nonduplicate fit" ($auditText -match " Fit: " -and $auditText -notmatch "Fit: This repo is a duplicated domain-specific prototype")
 Add-Check "verify command renders literally" ($auditText -match 'audit\.ps1 -Json' -and $auditText -notmatch ([string][char]7))
 Add-Check "json emits new setup keys" ($auditJson.detected.safeSourcePolicy.Count -gt 0 -and $auditJson.detected.modelPlan.Count -gt 0 -and $auditJson.detected.clientPlan.Count -gt 0 -and $auditJson.detected.nativeFirstSelectionPolicy.Count -gt 0 -and $auditJson.detected.minimalInstallPolicy.Count -gt 0 -and $auditJson.detected.harnessAudit.Count -gt 0 -and $auditJson.implementationPlan.Count -gt 0 -and $auditJson.verifyPlan.Count -gt 0)
 Add-Check "json emits platform matrix" ($auditJson.detected.platformCapabilities.Count -ge 11 -and @($auditJson.detected.platformCapabilities | Where-Object { $_.client -eq "Windsurf" -and $_.confidence -eq "docs-backed" }).Count -eq 1)
@@ -112,8 +112,8 @@ Add-Check "converter emits native skill" ($conversionJson.success -eq $true -and
 Add-Check "converter blocks lossy complex conversion" ($complexConversionJson.success -eq $false -and $complexConversionJson.status -eq "blocked" -and $complexConversionJson.reason -match "supporting files")
 Add-Check "converter blocked and unsupported conversions exit nonzero" ($blockedConversionExitCode -ne 0 -and $unsupportedConversionExitCode -ne 0 -and $unsupportedConversionJson.success -eq $false -and $unsupportedConversionJson.status -eq "unsupported")
 Add-Check "json fit evidence populated" (@($auditJson.recommendations.Immediate + $auditJson.recommendations.Optional + $auditJson.recommendations.Avoid | Where-Object { -not $_.fitEvidence }).Count -eq 0)
-Add-Check "skill bundle profile" ($auditJson.detected.stack -eq "Codex skill bundle" -and $auditText -notmatch "catalog-cleanup prototype|source-catalog cleanup prototype|catalog build command")
-Add-Check "bundled skill names do not drive target fit" ($auditText -notmatch "existing SourceLift catalog-refresh skill|source-catalog safety|\$sourcelift-catalog-refresh")
+Add-Check "skill bundle profile" ($auditJson.detected.stack -eq "Agent Skills bundle")
+Add-Check "bundled skill names do not drive target fit" ($auditText -notmatch "domain-specific prototype")
 Add-Check "safe avoid bucket" ($auditJson.recommendations.Avoid.Count -gt 0)
 Add-Check "command mechanism covered" ($skill -match "Slash commands: recommend" -and $skill -match "repeatable operator actions")
 Add-Check "automation is gated" ($skill -match "Automations: recommend only" -and $auditText -notmatch "recurring source-health report")

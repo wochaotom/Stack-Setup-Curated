@@ -24,8 +24,8 @@ Run:
 ```powershell
 & .\scripts\scan_skills.ps1
 & .\scripts\harness_test.ps1
-& .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
-& .\skills\codex-setup-audit\scripts\fixture_test.ps1
+& .\skills\stack-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
+& .\skills\stack-setup-audit\scripts\fixture_test.ps1
 & .\scripts\sync_skills.ps1
 ```
 

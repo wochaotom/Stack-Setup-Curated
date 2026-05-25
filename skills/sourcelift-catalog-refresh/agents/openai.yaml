@@ -1,7 +1,0 @@
-interface:
-  display_name: "SourceLift Catalog Refresh"
-  short_description: "Safe source catalog workflow"
-  default_prompt: "Use $sourcelift-catalog-refresh to refresh or QA the Great Homes Source catalog safely."
-
-policy:
-  allow_implicit_invocation: true

@@ -383,7 +383,7 @@ if ($preflightSucceeded) {
     }
 
     if (-not $SkipTests) {
-        $installedAuditScripts = Join-Path $destinationRoot "codex-setup-audit\scripts"
+        $installedAuditScripts = Join-Path $destinationRoot "stack-setup-audit\scripts"
         $testResults += Invoke-InstalledTest "installed setup-audit self test" (Join-Path $installedAuditScripts "self_test.ps1") @("-Path", $SourceRoot)
         $testResults += Invoke-InstalledTest "installed setup-audit fixture test" (Join-Path $installedAuditScripts "fixture_test.ps1") @()
     }

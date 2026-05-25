@@ -1,6 +1,6 @@
 # Agent Instructions
 
-This repository is a curated Codex skill bundle. Treat the files under `skills/`
+This repository is a curated Agent Skills bundle. Treat the files under `skills/`
 as the source of truth.
 
 ## Skill Sync
@@ -26,21 +26,18 @@ Run these checks after changing any skill:
 & .\scripts\harness_test.ps1
 ```
 
-Run these checks after changing `skills/codex-setup-audit`:
+Run these checks after changing `skills/stack-setup-audit`:
 
 ```powershell
 & .\scripts\harness_test.ps1
-& .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
-& .\skills\codex-setup-audit\scripts\fixture_test.ps1
+& .\skills\stack-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
+& .\skills\stack-setup-audit\scripts\fixture_test.ps1
 ```
 
 ## Audit Classification
 
-- This repo should classify as a Codex skill bundle.
+- This repo should classify as an Agent Skills bundle.
 - Bundled skill names are inventory, not target-repo identity.
-- SourceLift / Great Homes Source fit requires both domain text and catalog
-  structure such as `scripts\build_catalog.py`, Excel inputs, catalog outputs,
-  or the SourceLift plan file.
 
 ## Host Context
 

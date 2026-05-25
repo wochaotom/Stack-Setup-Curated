@@ -1,12 +1,12 @@
 # Stack Setup Curated
 
-**Source-locked agent setup skills for Codex and adjacent coding agents.**
+**Source-locked setup auditing for AI coding agents.**
 
 [![npx skills](https://img.shields.io/badge/npx-skills-orange)](https://github.com/vercel-labs/skills)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-blue)](https://agentskills.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-This repository is a curated skill bundle for setting up, auditing, and safely
+This repository is a focused skill bundle for setting up, auditing, and safely
 porting AI coding-agent workflows. It is not a giant skill marketplace and it is
 not an "install everything" script. The niche is narrower: keep a small set of
 high-value skills in a reviewed repo, verify their hashes, sync them into Codex,
@@ -36,13 +36,11 @@ Then install the specific skill you need into the agent you actually use.
 | Setup audit | Audits repositories for agent setup fit across rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification. |
 | Safe conversion | Converts simple skills/plugins to supported client layouts when feasible and exits nonzero when conversion would be lossy or unsupported. |
 
-## Included Skills
+## Included Skill
 
 | Skill | Purpose |
 | --- | --- |
-| `codex-setup-audit` | Read-only repo setup recommender for AI coding assistants, including cross-client capability mapping and source-authority checks. |
-| `sourcelift-catalog-refresh` | SourceLift / Great Homes Source catalog-refresh workflow for catalog cleanup, pricing/provenance review, and export QA. |
-| `autoresearch` | Third-party autonomous metric-loop skill from `uditgoenka/autoresearch`, installed from commit `98398ba5837ce74ca2ba888bc31456f2837cf33c`. |
+| `stack-setup-audit` | Read-only repo setup recommender for AI coding assistants, including cross-client capability mapping and source-authority checks. |
 
 ## Quick Start
 
@@ -67,19 +65,19 @@ npx skills@latest add wochaotom/Stack-Setup-Curated --list
 Install the setup audit skill globally:
 
 ```powershell
-npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent codex --global --yes
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill stack-setup-audit --agent codex --global --yes
 ```
 
 Install for another native Agent Skills client:
 
 ```powershell
-npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent claude-code --global --yes
-npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent cursor --global --yes
-npx skills@latest add wochaotom/Stack-Setup-Curated --skill codex-setup-audit --agent github-copilot --global --yes
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill stack-setup-audit --agent claude-code --global --yes
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill stack-setup-audit --agent cursor --global --yes
+npx skills@latest add wochaotom/Stack-Setup-Curated --skill stack-setup-audit --agent github-copilot --global --yes
 ```
 
-Install all bundled skills to all agents detected by the CLI only after
-reviewing the list:
+Install the bundled skill to all agents detected by the CLI only after
+reviewing the target list:
 
 ```powershell
 npx skills@latest add wochaotom/Stack-Setup-Curated --all --yes
@@ -118,19 +116,19 @@ The sync path:
 ### Audit A Repo
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo
+& .\skills\stack-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo
 ```
 
 Focus one mechanism:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo -Focus hooks
+& .\skills\stack-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo -Focus hooks
 ```
 
 Machine-readable output:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo -Json
+& .\skills\stack-setup-audit\scripts\audit.ps1 -Path C:\path\to\SomeRepo -Json
 ```
 
 ### Convert A Skill
@@ -138,14 +136,14 @@ Machine-readable output:
 List supported targets:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\convert_skill.ps1 -ListTargets -Json
+& .\skills\stack-setup-audit\scripts\convert_skill.ps1 -ListTargets -Json
 ```
 
 Convert a portable skill to GitHub Copilot's skill layout:
 
 ```powershell
-& .\skills\codex-setup-audit\scripts\convert_skill.ps1 `
-  -SourcePath .\skills\codex-setup-audit `
+& .\skills\stack-setup-audit\scripts\convert_skill.ps1 `
+  -SourcePath .\skills\stack-setup-audit `
   -Target github-copilot `
   -OutputPath .\out\converted `
   -Json
@@ -217,7 +215,7 @@ skills unless the user explicitly accepts a lossy conversion.
 ## Security Model
 
 `Stack Setup Curated` follows a small-registry model similar in spirit to
-autoskills, but aimed at a personal/team Codex skill bundle rather than a broad
+autoskills, but aimed at a personal/team Agent Skills bundle rather than a broad
 technology detector.
 
 - **No live third-party install during sync.** Sync copies from this repo's
@@ -246,8 +244,8 @@ Run the full local guard suite before claiming the repo is healthy:
 ```powershell
 & .\scripts\scan_skills.ps1
 & .\scripts\harness_test.ps1
-& .\skills\codex-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
-& .\skills\codex-setup-audit\scripts\fixture_test.ps1
+& .\skills\stack-setup-audit\scripts\self_test.ps1 -Path (Get-Location)
+& .\skills\stack-setup-audit\scripts\fixture_test.ps1
 & .\scripts\sync_skills.ps1
 git diff --check
 ```
@@ -267,7 +265,6 @@ After intentional skill edits, refresh the lockfile first:
 |-- LICENSE
 |-- README.md
 |-- SECURITY.md
-|-- THIRD_PARTY_NOTICES.md
 |-- research/source-distillation/
 |-- skills-lock.json
 |-- scripts/
@@ -275,17 +272,13 @@ After intentional skill edits, refresh the lockfile first:
 |   |-- harness_test.ps1
 |   `-- sync_skills.ps1
 `-- skills/
-    |-- autoresearch/
-    |-- codex-setup-audit/
-    `-- sourcelift-catalog-refresh/
+    `-- stack-setup-audit/
 ```
 
 | Path | Why it matters |
 | --- | --- |
 | `skills/` | Authoritative source for bundled skills. Edit here first; installed copies are derived. |
-| `skills/codex-setup-audit/` | Main audit/conversion skill. Its scripts produce setup recommendations, platform matrices, source-authority checks, and conversion results. |
-| `skills/sourcelift-catalog-refresh/` | Domain skill for SourceLift / Great Homes Source catalog work. Kept separate so its domain assumptions do not bleed into generic setup audits. |
-| `skills/autoresearch/` | Bundled third-party metric-loop skill. Preserve upstream MIT provenance and avoid silent rewrites. |
+| `skills/stack-setup-audit/` | Main audit/conversion skill. Its scripts produce setup recommendations, platform matrices, source-authority checks, and conversion results. |
 | `skills-lock.json` | SHA-256 manifest for every bundled skill file. Refresh it only after intentional skill changes. |
 | `scripts/scan_skills.ps1` | Static guardrail for bundled skills: prompt-injection phrases, dynamic PowerShell execution, fetch-and-execute patterns, and credential-shaped literals. |
 | `scripts/sync_skills.ps1` | Controlled sync from repo skills into the local Codex skills directory, with lock verification and installed-drift reporting. |
@@ -293,7 +286,6 @@ After intentional skill edits, refresh the lockfile first:
 | `research/source-distillation/` | Distilled findings from reviewed external skill repos. It is research input, not automatically installed runtime behavior. |
 | `AGENTS.md` | Operational instructions for future coding agents working in this repo. |
 | `SECURITY.md` | Public security policy and reportable issue categories. |
-| `THIRD_PARTY_NOTICES.md` | Required provenance notes for bundled third-party content. |
 
 ## Maintainer Workflow
 
@@ -355,8 +347,6 @@ provenance, license, permission, and runtime-feature review.
 
 This repository is licensed under the MIT License. See `LICENSE`.
 
-The bundled `autoresearch` skill is third-party content from
-`uditgoenka/autoresearch` at commit
-`98398ba5837ce74ca2ba888bc31456f2837cf33c`. Keep upstream provenance intact
-when syncing, modifying, or redistributing bundled skills. See
-`THIRD_PARTY_NOTICES.md` and `skills/autoresearch/LICENSE`.
+The files under `research/source-distillation/` are original distillation notes
+from reviewed external repositories. They are not bundled third-party skill
+payloads and are not installed by sync.
