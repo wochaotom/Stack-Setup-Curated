@@ -90,7 +90,7 @@ function Read-SkillMetadata($SkillPath) {
 function Get-TargetAdapter($TargetName) {
     switch (([string]$TargetName).ToLowerInvariant()) {
         "codex" {
-            return [ordered]@{ key = "codex"; label = "Codex"; kind = "native-skill"; root = @("skills"); extension = ""; supportsSupportingFiles = $true; source = "https://github.com/openai/skills" }
+            return [ordered]@{ key = "codex"; label = "Codex"; kind = "native-skill"; root = @("skills"); extension = ""; supportsSupportingFiles = $true; source = "OpenAI bundled and curated skill sources" }
         }
         "claude" {
             return Get-TargetAdapter "claude-code"

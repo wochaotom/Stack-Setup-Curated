@@ -64,8 +64,8 @@ function Get-SafeSourcePolicy() {
         "If the target lacks a capability, check Claude Code and Codex ecosystems early when relevant, then allow any other marketplace as a source only when the needed skill/plugin exists there and passes source review.",
         "Prefer first-party client docs and registries for each target adapter instead of assuming one client's artifact format works everywhere.",
         "Use Agent Skills, OpenAI, Anthropic, GitHub Copilot, Cursor, Google Antigravity/Gemini CLI, OpenCode, Aider, Continue, Cline, Roo Code, and Windsurf official docs as compatibility sources with review.",
-        "Treat broad community directories as discovery-only and inspect original repos before recommending.",
-        'Reject `officialskills.sh` as a vetted source.'
+        "Treat community marketplaces and directories as discovery-only and inspect original source projects before recommending.",
+        "Do not treat unaffiliated directories or mirrors as vetted source authority."
     )
 }
 
@@ -113,16 +113,16 @@ function Get-PlatformSourceAuthority($Client) {
     switch ($Client) {
         "Codex" {
             return New-SourceAuthority @(
-                "https://github.com/openai/skills",
+                "OpenAI bundled and curated skill sources",
                 "https://agentskills.io/"
-            ) "OpenAI skills catalog and the Agent Skills standard are the source references for Agent Skills bundles."
+            ) "OpenAI skill sources and the Agent Skills standard are the source references for Agent Skills bundles."
         }
         "Claude Code" {
             return New-SourceAuthority @(
                 "https://docs.claude.com/en/docs/claude-code",
-                "https://github.com/anthropics/skills",
+                "Anthropic official Agent Skills material",
                 "https://agentskills.io/"
-            ) "Claude Code docs plus Anthropic's Agent Skills repository are authoritative for Claude-specific adapters."
+            ) "Claude Code docs plus Anthropic's official Agent Skills material are authoritative for Claude-specific adapters."
         }
         "GitHub Copilot" {
             return New-SourceAuthority @(
@@ -143,9 +143,8 @@ function Get-PlatformSourceAuthority($Client) {
         }
         "Gemini CLI" {
             return New-SourceAuthority @(
-                "https://google-gemini.github.io/gemini-cli/docs/",
-                "https://github.com/google-gemini/gemini-cli"
-            ) "Gemini CLI docs and repository are authoritative for extensions, commands, MCP, hooks, and skills."
+                "https://google-gemini.github.io/gemini-cli/docs/"
+            ) "Gemini CLI docs are authoritative for extensions, commands, MCP, hooks, and skills."
         }
         "OpenCode" {
             return New-SourceAuthority @(

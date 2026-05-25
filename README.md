@@ -2,7 +2,6 @@
 
 **Source-locked setup auditing for AI coding agents.**
 
-[![npx skills](https://img.shields.io/badge/npx-skills-orange)](https://github.com/vercel-labs/skills)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-blue)](https://agentskills.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -214,11 +213,10 @@ skills unless the user explicitly accepts a lossy conversion.
 
 ## Security Model
 
-`Stack Setup Curated` follows a small-registry model similar in spirit to
-autoskills, but aimed at a personal/team Agent Skills bundle rather than a broad
-technology detector.
+`Stack Setup Curated` follows a small-registry model for personal/team Agent
+Skills bundles.
 
-- **No live third-party install during sync.** Sync copies from this repo's
+- **No live external install during sync.** Sync copies from this repo's
   committed `skills/` directory.
 - **Repo skills are authoritative.** Installed copies under `.codex\skills` are
   derived and may be overwritten by sync.
@@ -230,9 +228,8 @@ technology detector.
   installed files before overwrite.
 - **Official source authority.** Platform compatibility claims are backed by
   first-party docs in `detected.platformCapabilities[].sourceAuthority`.
-- **Unsafe source rejection.** `officialskills.sh` is treated as unverified, and
-  unofficial mirrors such as `open-code.ai` are not accepted as adapter
-  authority.
+- **Unsafe source rejection.** Unofficial directories and mirrors are not
+  accepted as adapter authority.
 - **Lossy conversion blocks.** `convert_skill.ps1` blocks conversions that would
   drop scripts, assets, MCP servers, hooks, tools, auth, or other
   client-exclusive behavior.
@@ -265,7 +262,6 @@ After intentional skill edits, refresh the lockfile first:
 |-- LICENSE
 |-- README.md
 |-- SECURITY.md
-|-- research/source-distillation/
 |-- skills-lock.json
 |-- scripts/
 |   |-- scan_skills.ps1
@@ -283,7 +279,6 @@ After intentional skill edits, refresh the lockfile first:
 | `scripts/scan_skills.ps1` | Static guardrail for bundled skills: prompt-injection phrases, dynamic PowerShell execution, fetch-and-execute patterns, and credential-shaped literals. |
 | `scripts/sync_skills.ps1` | Controlled sync from repo skills into the local Codex skills directory, with lock verification and installed-drift reporting. |
 | `scripts/harness_test.ps1` | Repo-level regression harness for scanner, lock, sync, and tamper behavior. |
-| `research/source-distillation/` | Distilled findings from reviewed external skill repos. It is research input, not automatically installed runtime behavior. |
 | `AGENTS.md` | Operational instructions for future coding agents working in this repo. |
 | `SECURITY.md` | Public security policy and reportable issue categories. |
 
@@ -296,28 +291,17 @@ After intentional skill edits, refresh the lockfile first:
 4. Commit only reviewed source files and the refreshed lockfile.
 5. Push `main` to `origin` when the worktree is clean.
 
-## Design Benchmarks
-
-This README is intentionally benchmarked against two styles:
-
-- `midudev/autoskills`: short promise, one-command usage, clear security model.
-- `Great-Code-Hygiene`: fuller operational docs, install surfaces, maintainer
-  checks, and honest verification language.
-
-This repo's intended middle ground is: quick enough to use immediately, explicit
-enough that future agents cannot pretend unverified setup is safe.
-
 ## External Source Policy
 
 Primary qualified sources are first-party client docs and registries:
 
-- OpenAI skills catalog: `https://github.com/openai/skills`
-- Agent Skills standard: `https://agentskills.io/`
-- Anthropic / Claude Code docs and skills repository
+- Codex and OpenAI skill sources
+- Agent Skills standard
+- Anthropic / Claude Code docs and skill references
 - GitHub Copilot docs
 - Cursor docs
 - Google Antigravity docs
-- Gemini CLI docs and repository
+- Gemini CLI docs
 - OpenCode docs
 - Aider docs
 - Continue docs
@@ -325,10 +309,9 @@ Primary qualified sources are first-party client docs and registries:
 - Roo Code docs
 - Windsurf docs
 
-Broad directories such as `VoltAgent/awesome-agent-skills` and
-`awesomeskills.dev` are discovery-only. Inspect original repositories, scripts,
-permissions, install steps, and provenance before recommending or copying any
-skill.
+Community marketplaces and directories are discovery-only. Inspect the original
+source project, scripts, permissions, install steps, and provenance before
+recommending or copying any skill.
 
 Marketplace and `npx skills` discovery is useful for install mechanics, but it
 does not replace platform-native source review. Prefer the target platform's
@@ -346,7 +329,3 @@ provenance, license, permission, and runtime-feature review.
 ## License And Provenance
 
 This repository is licensed under the MIT License. See `LICENSE`.
-
-The files under `research/source-distillation/` are original distillation notes
-from reviewed external repositories. They are not bundled third-party skill
-payloads and are not installed by sync.

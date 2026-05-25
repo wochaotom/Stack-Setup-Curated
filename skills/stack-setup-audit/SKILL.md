@@ -82,28 +82,25 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
 ## External Skill Discovery
 
 - Use this source index when looking for skills to recommend:
-  - **Qualified: OpenAI skills catalog** - `https://github.com/openai/skills`, especially `skills/.system` and `skills/.curated`, is the primary Codex source. `.system` skills are bundled with Codex; `.curated` skills are installable by name through `$skill-installer`.
-  - **Qualified: OpenAI skill-installer curated listing** - `$skill-installer` lists from `https://github.com/openai/skills/tree/main/skills/.curated` by default. Prefer it over hand-built lists when recommending Codex skills.
-  - **Qualified: Agent Skills standard** - `https://agentskills.io/` and `https://github.com/agentskills/agentskills` are authoritative for format, structure, progressive disclosure, and portability. Use them as specification references, not as a vetted install catalog.
-  - **Qualified with caveat: Anthropic skills repository** - `https://github.com/anthropics/skills` is an official upstream reference for Agent Skills patterns and Claude document skills. Treat it as reference material or a candidate source that still needs Codex compatibility review.
+  - **Qualified: Codex/OpenAI skill sources** - bundled system skills and the `$skill-installer` curated listing are the primary Codex sources. Prefer them over hand-built lists when recommending Codex skills.
+  - **Qualified: Agent Skills standard** - authoritative for format, structure, progressive disclosure, and portability. Use it as a specification reference, not as a vetted install catalog.
+  - **Qualified with caveat: Anthropic / Claude Code official docs and skills material** - use these for Claude-specific patterns and compatibility, while still checking Codex compatibility before reuse.
   - **Qualified with caveat: GitHub Copilot agent skills docs** - GitHub's official Copilot docs and `gh skill` workflow are useful for cross-agent compatibility and GitHub-hosted skill discovery, but are not a Codex-curated install source.
-  - **Qualified with caveat: github/awesome-copilot** - `https://github.com/github/awesome-copilot` is a GitHub-owned community collection referenced by GitHub's agent-skill docs. Treat it as a GitHub ecosystem index, but preview and inspect every skill because GitHub warns these skills are not verified.
   - **Qualified with caveat: Cursor official docs** - `https://docs.cursor.com/` is authoritative for Cursor rules, CLI agent, and MCP behavior. Use it for Cursor-compatible plans such as `.cursor/rules` and `mcp.json`; do not treat community Cursor guides as vetted installs.
   - **Qualified with caveat: Google Antigravity official docs** - `https://www.antigravity.google/docs/` is authoritative for Antigravity MCP, permissions, CLI plugins, skills, agents, rules, and hooks. Treat Antigravity plugin plans as client-specific and verify paths such as `~/.gemini/antigravity/` or `~/.gemini/antigravity-cli/` before recommending edits.
-  - **Qualified with caveat: Gemini CLI official docs** - `https://google-gemini.github.io/gemini-cli/` and `google-gemini/gemini-cli` docs are authoritative for GEMINI.md, extensions, MCP, commands, hooks, subagents, and agent skills. Verify installed CLI version and extension schema before recommending edits.
+  - **Qualified with caveat: Gemini CLI official docs** - `https://google-gemini.github.io/gemini-cli/` docs are authoritative for GEMINI.md, extensions, MCP, commands, hooks, subagents, and agent skills. Verify installed CLI version and extension schema before recommending edits.
   - **Qualified with caveat: OpenCode official docs** - OpenCode docs are authoritative for AGENTS.md rules and `.opencode/agent/` agent configuration. Verify local OpenCode version and project config before assuming behavior.
   - **Qualified with caveat: Aider official docs** - Aider docs are authoritative for conventions files and repo-map behavior. Do not assume native skills, hooks, or MCP parity unless current docs show it.
   - **Qualified with caveat: Continue official docs** - `https://docs.continue.dev/` is authoritative for config.yaml, rules, prompts, tools, context providers, model roles, and MCP servers.
   - **Qualified with caveat: Cline official docs** - `https://docs.cline.bot/` is authoritative for `.clinerules`, workspace workflows under `.clinerules/workflows/`, and MCP tool use in workflows.
   - **Qualified with caveat: Roo Code official docs** - Roo Code docs are authoritative for custom modes, `.roo/rules/`, `.roo/rules-{mode}/`, `.roorules-{mode}`, tool groups, marketplace items, and MCP transports.
   - **Qualified with caveat: Windsurf official docs** - `https://docs.windsurf.com/` is authoritative for Cascade rules, memories, skills, and team-shared `.windsurf/rules/` or AGENTS.md guidance.
-  - **Discovery-only: VoltAgent/awesome-agent-skills and awesomeskills.dev** - useful for finding vendor or community leads. Never recommend installation from these directories without inspecting the original repository and pinning provenance.
-  - **Rejected as vetted source: officialskills.sh** - do not call it official, trusted, or vetted. Treat any entry found there as an unverified lead only; current public trust signals and third-party maintenance claims are not enough for qualified-source status.
-- Prefer first-party vendor repositories and the built-in `skill-installer` curated OpenAI source when available.
+- Prefer first-party vendor docs, official registries, and the built-in `skill-installer` curated OpenAI source when available.
 - Treat `detected.platformCapabilities[].sourceAuthority` as the machine-readable adapter source registry. Every adapter must point to official or first-party docs; discovery-only directories and unofficial mirrors are never adapter authority.
-- Before recommending installation from any discovery-only index, inspect the original GitHub repository, `SKILL.md`, scripts, hooks, install steps, network calls, and permissions.
+- Before recommending installation from any discovery-only index, inspect the original source project, `SKILL.md`, scripts, hooks, install steps, network calls, and permissions.
 - Pin external skills to a commit/ref when possible, and record why the repo needs that skill.
 - Never recommend installing a skill solely because it is listed in a directory.
+- Do not promote unaffiliated directories or mirrors as vetted source authority.
 - Any marketplace can be a candidate acquisition source when a needed skill or
   plugin only exists there, but the marketplace listing is not enough. Inspect
   the original source, maintainer, license, scripts, install steps, network
@@ -286,5 +283,5 @@ Conversion rules:
 - Long-running or network-heavy checks attached to every user prompt.
 - MCP servers, terminal hosts, or plugins that auto-register tools/hooks without a config diff and permission review.
 - Recommendations that say "install everything" instead of explaining why a repo specifically needs it.
-- Skills discovered through third-party indexes without source review, pinned provenance, or a project-specific reason.
+- Skills discovered through community indexes without source review, pinned provenance, or a project-specific reason.
 - Skills that are prompt dumps, lack negative triggers, lack verification, or promote one project's SPEC into global behavior.

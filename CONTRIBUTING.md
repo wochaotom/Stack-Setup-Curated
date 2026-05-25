@@ -40,8 +40,8 @@ git status --short
 
 - Use official or first-party docs for platform adapter claims.
 - Treat community directories as discovery-only.
-- Do not promote `officialskills.sh` or unofficial mirrors as vetted sources.
-- Pin third-party skills to a commit or version when possible.
+- Do not promote unofficial directories or mirrors as vetted sources.
+- Pin external skills to a commit or version when possible.
 
 ## Pull Request Checklist
 

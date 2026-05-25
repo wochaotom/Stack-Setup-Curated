@@ -1,41 +1,41 @@
-﻿{
-    "version":  1,
-    "algorithm":  "SHA256",
-    "generatedAt":  "2026-05-25T19:29:31.4903365Z",
-    "skills":  [
-                   {
-                       "name":  "stack-setup-audit",
-                       "bundleSha256":  "C76CE308F49F6A5F924224E20835B7F7FE6F5B4E9CD889F89D04EB470449BE8F",
-                       "files":  [
-                                     {
-                                         "path":  "agents\\openai.yaml",
-                                         "sha256":  "01A1AD264E4E599DA52C63F30037E84CE16F2D062BD502412F04083901F044E6"
-                                     },
-                                     {
-                                         "path":  "scripts\\audit.ps1",
-                                         "sha256":  "148F2FED4BA6349788EDAAE0BF1B6031B86879B63972B6D65B8F12035B2802F6"
-                                     },
-                                     {
-                                         "path":  "scripts\\convert_skill.ps1",
-                                         "sha256":  "86EA09C82E35AE2DDAE0FA94E7118B0171FB4187A356C9638ABAC2C2A5910E97"
-                                     },
-                                     {
-                                         "path":  "scripts\\fixture_test.ps1",
-                                         "sha256":  "A6C78881B3445C971E1EFFD0BD1B98E93C79924193F6B2800F50CC54E3FD5791"
-                                     },
-                                     {
-                                         "path":  "scripts\\inventory.ps1",
-                                         "sha256":  "BAE7BA2D6DA25D87763442B3B3DEBDD5295B9157BD8E61F2D33C93A34A4BC902"
-                                     },
-                                     {
-                                         "path":  "scripts\\self_test.ps1",
-                                         "sha256":  "5C9E3B72B0BCDC8F1E0AE043FFDC7E6BADC1A221B17559097BAF945DDBA67B83"
-                                     },
-                                     {
-                                         "path":  "SKILL.md",
-                                         "sha256":  "25ABEEB97F9739EB8B2B3065185F19D3CEB51686B86C0713A51D66E23AA668C0"
-                                     }
-                                 ]
-                   }
-               ]
+{
+  "version": 1,
+  "algorithm": "SHA256",
+  "generatedAt": "2026-05-25T19:41:06.4093135Z",
+  "skills": [
+    {
+      "name": "stack-setup-audit",
+      "bundleSha256": "23FAE0F1C427F0D2B990B6C5047C97DE8B2D9EA1907154B72639DBE6205FA1B9",
+      "files": [
+        {
+          "path": "agents\\openai.yaml",
+          "sha256": "01A1AD264E4E599DA52C63F30037E84CE16F2D062BD502412F04083901F044E6"
+        },
+        {
+          "path": "scripts\\audit.ps1",
+          "sha256": "98866AC7045B2B7D270538F66F3F49B2DEF8A87AC9D79E18B01CCE190A9FEFE8"
+        },
+        {
+          "path": "scripts\\convert_skill.ps1",
+          "sha256": "E9D74A59F47B28D02ED4008BBB1065E0861F603249149D53A7EA341A63F57FD9"
+        },
+        {
+          "path": "scripts\\fixture_test.ps1",
+          "sha256": "A6C78881B3445C971E1EFFD0BD1B98E93C79924193F6B2800F50CC54E3FD5791"
+        },
+        {
+          "path": "scripts\\inventory.ps1",
+          "sha256": "BAE7BA2D6DA25D87763442B3B3DEBDD5295B9157BD8E61F2D33C93A34A4BC902"
+        },
+        {
+          "path": "scripts\\self_test.ps1",
+          "sha256": "CD3BF4309D7057C4477AACBA97D68B1637896519B004D00073B5FA323666DB97"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "7A7493DC782B1F23515A51BC699F9727E7FC34DB20C794E04421CAE572A37410"
+        }
+      ]
+    }
+  ]
 }
