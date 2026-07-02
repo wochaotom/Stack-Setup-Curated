@@ -163,6 +163,49 @@ piece needs an active workflow, target client, pinned source, safety review,
 owner, and verification path. Call out stale, unused, duplicate, or overlapping
 setup as bloat to avoid or remove.
 
+## Source Review Scorecard
+
+For each install, conversion, or cross-ecosystem recommendation, record a
+scorecard instead of relying on a marketplace listing.
+
+Required fields:
+
+- source authority: target-native, first-party, official registry, maintained
+  community source, marketplace-only, or unknown
+- original source: repository, package, docs page, maintainer, license, and
+  pinned commit/version
+- runtime surface: scripts, hooks, MCP servers, tools, auth, network calls,
+  background services, agents/subagents, apps, assets, and generated files
+- permission class: read-only, local write, repo write, external write,
+  secret-bearing, deploy/release, or raw-data handling
+- fit decision: native, adjacent native, link-only, convert, install, block, or
+  defer
+- conversion loss: unsupported files, client-exclusive behavior, missing tools,
+  missing auth model, or none
+- verification path: scanner result, target-client smoke test, rollback path,
+  owner, and active workflow evidence
+
+Block or defer when original source, license, runtime surface, permission class,
+or verification path is unknown. Discovery sources find candidates; they do not
+approve installs.
+
+## Harness Evaluation Loop
+
+When improving an agent setup, capture enough trace data to turn repeated
+failures into tests or skill updates:
+
+- goal and active workflow
+- sources retrieved and source-review decisions
+- planned actions and tool/client boundaries
+- permission gates and human approvals
+- diffs, generated files, and lockfile/hash changes
+- verifier output, failures, retries, and rollback actions
+- residual risk, owner, and next evaluation case
+
+Do not train or broaden the stack just to improve the harness. Improve the
+smallest failing surface first: source policy, scanner rule, conversion guard,
+fixture, verifier, or skill instruction.
+
 ## Skill And Plugin Conversion
 
 Use `convert_skill.ps1` only after choosing a target platform. It writes reviewable artifacts into an output directory; it does not install or enable anything by itself.
@@ -184,6 +227,9 @@ Conversion rules:
 - Block conversions that would drop supporting files, scripts, assets, MCP servers, hooks, tools, auth, or client-exclusive plugin behavior. Use `-AllowPartial` only when the user explicitly accepts a lossy instruction-only artifact after review.
 - For plugins, extract skills only from pure skill-bundle plugins. If a plugin includes hooks, MCP config, commands, agents, apps, auth, or unknown root files, report `status: blocked` instead of guessing.
 - Include `sourceAuthority` in converter JSON output so downstream tooling can prove the target adapter came from an official source.
+- Include `sourceReview` in converter JSON output so downstream tooling can
+  confirm the original source, permission class, runtime surface, conversion
+  loss, and verification path before install.
 - Run `convert_skill.ps1 -ListTargets -Json` to inspect supported targets and whether each target preserves supporting files.
 
 ## Report Template
@@ -209,6 +255,19 @@ Conversion rules:
 - Logs/traces:
 - Stop/rollback:
 - Review layer:
+
+**Source Review Scorecard**
+- Source authority:
+- Original source:
+- Runtime surface:
+- Permission class:
+- Fit decision:
+- Verification path:
+
+**Harness Evaluation Loop**
+- Trace:
+- Failure taxonomy:
+- Next test:
 
 **Immediate**
 - [mechanism] Recommendation - reason and benefit.

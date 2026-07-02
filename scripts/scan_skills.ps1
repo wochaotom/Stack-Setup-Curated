@@ -37,6 +37,7 @@ if (-not (Test-Path -LiteralPath $skillsRoot)) {
         $extension = $file.Extension.ToLowerInvariant()
         $isPowerShell = $extension -in @(".ps1", ".psm1", ".psd1")
         $isSkillEntrypoint = $file.Name -eq "SKILL.md"
+        $isDescriptor = $extension -in @(".md", ".json", ".yml", ".yaml")
         $shouldScanText = $isPowerShell -or $isSkillEntrypoint -or ($extension -in @(".md", ".json", ".yml", ".yaml"))
 
         if (-not $shouldScanText) {
@@ -48,15 +49,17 @@ if (-not (Test-Path -LiteralPath $skillsRoot)) {
             $lineNumber = $index + 1
             $line = $lines[$index]
 
-            if ($isSkillEntrypoint -and $line -match "(?i)\b(ignore|disregard)\s+(all\s+)?(previous|prior|system|developer)\s+instructions\b") {
-                $findings += New-Finding "critical" "prompt-injection-directive" $relative $lineNumber "Skill entrypoint contains a direct instruction-hijacking phrase."
+            if ($shouldScanText -and $line -match "(?i)\b(ignore|disregard)\s+(all\s+)?(previous|prior|system|developer)\s+instructions\b") {
+                $rule = if ($isSkillEntrypoint) { "prompt-injection-directive" } elseif ($isDescriptor) { "tool-descriptor-injection" } else { "instruction-hijack-directive" }
+                $message = if ($isSkillEntrypoint) { "Skill entrypoint contains a direct instruction-hijacking phrase." } elseif ($isDescriptor) { "Descriptor or documentation file contains a direct instruction-hijacking phrase." } else { "Skill file contains a direct instruction-hijacking phrase." }
+                $findings += New-Finding "critical" $rule $relative $lineNumber $message
             }
 
             if ($isPowerShell -and $line -match "(?i)\b(Invoke-Expression|iex)\b") {
                 $findings += New-Finding "critical" "powershell-dynamic-execution" $relative $lineNumber "PowerShell dynamic execution is not allowed in bundled skills."
             }
 
-            if ($isPowerShell -and $line -match "(?i)\b(curl|Invoke-WebRequest|iwr|wget)\b.*\|\s*(Invoke-Expression|iex|sh|bash)\b") {
+            if ($shouldScanText -and $line -match "(?i)\b(curl|Invoke-WebRequest|iwr|wget)\b.*\|\s*(Invoke-Expression|iex|sh|bash|powershell|pwsh)\b") {
                 $findings += New-Finding "critical" "fetch-and-execute" $relative $lineNumber "Fetched code must not be piped into an interpreter."
             }
 

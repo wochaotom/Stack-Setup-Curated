@@ -184,6 +184,51 @@ function New-Result($Success, $Status, $TargetAdapter, $SourceKind, $SourceName,
                 sources = @()
             }
         }
+        sourceReview = [ordered]@{
+            requiredBeforeInstall = $true
+            sourceAuthority = if ($TargetAdapter) {
+                [ordered]@{
+                    status = "official"
+                    sources = @($TargetAdapter.source)
+                }
+            } else {
+                [ordered]@{
+                    status = "unknown"
+                    sources = @()
+                }
+            }
+            originalSource = [ordered]@{
+                kind = $SourceKind
+                name = $SourceName
+                pinRequired = $true
+                license = "unknown until original source is inspected"
+            }
+            runtimeSurface = @(
+                "generated files listed in generatedFiles",
+                "inspect source scripts, hooks, MCP/tools, auth, network calls, agents, apps, assets, and install steps before use"
+            )
+            permissionClass = "local write artifact generation only; install and target-client enablement are separate review steps"
+            fitDecision = if (-not $Success) {
+                "block"
+            } elseif ($Native -and -not $RequiresManualReview) {
+                "convert-native"
+            } elseif ($Lossy) {
+                "convert-instruction-only-review-required"
+            } else {
+                "convert-review-required"
+            }
+            conversionLoss = if ($Lossy) {
+                "possible loss of supporting files or client-exclusive behavior; manual review required"
+            } else {
+                "none detected by this adapter"
+            }
+            verificationPath = @(
+                "Run the source scanner when the source is a repo or skill bundle.",
+                "Inspect generatedFiles before installing or enabling anything.",
+                "Run a target-client smoke test that proves the artifact loads.",
+                "Rollback by deleting the generated output directory before install."
+            )
+        }
         conversion = [ordered]@{
             native = [bool]$Native
             lossy = [bool]$Lossy

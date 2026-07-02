@@ -89,6 +89,46 @@ function Get-MinimalInstallPolicy() {
     )
 }
 
+function New-SourceReviewItem($Field, $RequiredEvidence, $Blocker) {
+    return [ordered]@{
+        field = $Field
+        requiredEvidence = $RequiredEvidence
+        blocker = $Blocker
+    }
+}
+
+function Get-SourceReviewScorecard() {
+    return @(
+        (New-SourceReviewItem "sourceAuthority" "target-native, first-party, official registry, maintained community source, marketplace-only, or unknown" "unknown original source, unaffiliated mirror treated as authority, or source cannot be pinned")
+        (New-SourceReviewItem "originalSource" "repository/package/docs page, maintainer, license, and pinned commit or version" "missing license, unclear maintainer, mutable source, or no original project inspected")
+        (New-SourceReviewItem "runtimeSurface" "scripts, hooks, MCP servers, tools, auth, network calls, background services, agents, apps, assets, and generated files" "runtime behavior cannot be inspected or would execute before review")
+        (New-SourceReviewItem "permissionClass" "read-only, local write, repo write, external write, secret-bearing, deploy/release, or raw-data handling" "permission class is unknown or exceeds the active workflow")
+        (New-SourceReviewItem "fitDecision" "native, adjacent native, link-only, convert, install, block, or defer" "target-native and adjacent options were not checked before cross-ecosystem acquisition")
+        (New-SourceReviewItem "conversionLoss" "unsupported files, client-exclusive behavior, missing tools, missing auth model, or none" "conversion would drop scripts, auth, MCP, hooks, tools, assets, or client-exclusive behavior")
+        (New-SourceReviewItem "verificationPath" "scanner result, target-client smoke test, rollback path, owner, and active workflow evidence" "no verification command, no rollback path, no owner, or no current workflow need")
+    )
+}
+
+function Get-InstallBloatSignals() {
+    return @(
+        "New MCP server, hook, automation, agent, background service, or command without an active workflow.",
+        "Broad marketplace bundle when one native item, link, or narrow domain bundle would cover the job.",
+        "Duplicate or overlapping capability already covered by existing rules, scripts, plugins, or skills.",
+        "Install source cannot be pinned or reviewed, or permission class exceeds the repo's current need.",
+        "No owner, rollback path, smoke test, or future maintenance signal."
+    )
+}
+
+function Get-HarnessEvaluationLoop() {
+    return @(
+        "Trace: record goal, active workflow, retrieved sources, source-review decisions, planned actions, and tool/client boundaries.",
+        "Permissions: record human approval gates for config mutation, network-heavy work, auth, deploy/release, external-send, raw data, and secrets.",
+        "Diffs: record generated files, lockfile/hash updates, repo diffs, and installed/derived artifact drift.",
+        "Verification: record scanner output, smoke tests, target-client checks, failure class, retry count, rollback action, and residual risk.",
+        "Iteration: promote repeated failures into scanner rules, converter guards, fixtures, verifier commands, or skill instructions before broadening the stack."
+    )
+}
+
 function Get-ClientPlan() {
     return @(
         "Start from capabilities first: context/rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification.",
@@ -644,6 +684,9 @@ $report = [ordered]@{
         clientPlan = @(Get-ClientPlan)
         nativeFirstSelectionPolicy = @(Get-NativeFirstSelectionPolicy)
         minimalInstallPolicy = @(Get-MinimalInstallPolicy)
+        installBloatSignals = @(Get-InstallBloatSignals)
+        sourceReviewScorecard = @(Get-SourceReviewScorecard)
+        harnessEvaluationLoop = @(Get-HarnessEvaluationLoop)
         platformCapabilities = @(Get-PlatformCapabilityMatrix)
         safeSourcePolicy = @(Get-SafeSourcePolicy)
         harnessAudit = @(Get-HarnessAudit)
@@ -709,8 +752,26 @@ foreach ($policy in $report.detected.minimalInstallPolicy) {
 }
 
 Write-Output ""
+Write-Output "**Install Bloat Signals**"
+foreach ($signal in $report.detected.installBloatSignals) {
+    Write-Output "- $signal"
+}
+
+Write-Output ""
+Write-Output "**Source Review Scorecard**"
+foreach ($item in $report.detected.sourceReviewScorecard) {
+    Write-Output "- $($item.field): evidence=$($item.requiredEvidence); block=$($item.blocker)"
+}
+
+Write-Output ""
 Write-Output "**Harness Audit**"
 foreach ($item in $report.detected.harnessAudit) {
+    Write-Output "- $item"
+}
+
+Write-Output ""
+Write-Output "**Harness Evaluation Loop**"
+foreach ($item in $report.detected.harnessEvaluationLoop) {
     Write-Output "- $item"
 }
 

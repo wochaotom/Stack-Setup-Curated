@@ -31,8 +31,10 @@ Then install the specific skill you need into the agent you actually use.
 | Curated skill source | Treats `skills/` as the source of truth and installed Codex copies as derived artifacts. |
 | Lockfile integrity | Tracks every bundled skill file with SHA-256 hashes in `skills-lock.json`. |
 | Tamper-aware sync | Reports installed-skill drift before replacing installed copies. |
-| Skill scanning | Blocks obvious prompt-injection phrases, dynamic PowerShell execution, fetch-and-execute patterns, and credential-shaped secrets in bundled skill files. |
+| Skill scanning | Blocks obvious prompt-injection phrases in skill and descriptor files, dynamic PowerShell execution, fetch-and-execute patterns, and credential-shaped secrets in bundled skill files. |
 | Setup audit | Audits repositories for agent setup fit across rules, skills, MCP/tools, hooks, commands, agents, automations, permissions, provenance, and verification. |
+| Source review scorecard | Requires install and conversion candidates to record source authority, original source, runtime surface, permission class, conversion loss, and verification path. |
+| Harness evaluation loop | Turns repeated setup failures into scanner rules, converter guards, fixtures, verifier commands, or skill instruction updates instead of broadening the stack by default. |
 | Safe conversion | Converts simple skills/plugins to supported client layouts when feasible and exits nonzero when conversion would be lossy or unsupported. |
 
 ## Included Skill
@@ -223,11 +225,14 @@ Skills bundles.
 - **Hashes are committed.** `skills-lock.json` records file hashes and bundle
   hashes for every bundled skill.
 - **Scanner before sync.** `scan_skills.ps1` rejects known-dangerous patterns in
-  bundled skills.
+  bundled skills, descriptors, and documentation files that can steer agents.
 - **Tamper visibility.** `sync_skills.ps1` reports added, removed, or changed
   installed files before overwrite.
 - **Official source authority.** Platform compatibility claims are backed by
   first-party docs in `detected.platformCapabilities[].sourceAuthority`.
+- **Source review scorecard.** Install and conversion candidates must carry
+  original-source, runtime-surface, permission, conversion-loss, and
+  verification evidence before they become durable setup.
 - **Unsafe source rejection.** Unofficial directories and mirrors are not
   accepted as adapter authority.
 - **Lossy conversion blocks.** `convert_skill.ps1` blocks conversions that would
