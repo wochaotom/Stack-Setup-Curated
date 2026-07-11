@@ -51,7 +51,7 @@ Usually inspect `README*`, `AGENTS.md`, `CLAUDE.md`, package manifests, workflow
    - workflow fit: what the repo appears to do and which agent workflows recur
    - evidence fit: files, scripts, docs, CI, configs, or package dependencies supporting the recommendation
    - safety fit: permissions, secrets, network access, generated files, raw inputs, and blast radius
-   - maintenance fit: how often the setup will be used and who owns it
+   - maintenance fit: how often the setup will be used, its update cadence, and who owns it
    - model fit: cheap/fast model for deterministic checks, stronger coding model for implementation, strongest/review model for architecture, security, or long-running refactors
    - user fit: what must be confirmed with the user before installation or durable config
 6. Audit the harness around the model:
@@ -178,16 +178,23 @@ Required fields:
   background services, agents/subagents, apps, assets, and generated files
 - permission class: read-only, local write, repo write, external write,
   secret-bearing, deploy/release, or raw-data handling
+- maintenance/update cadence: owner, release path, last update, issue response,
+  update frequency, and rollback path
+- data sensitivity: public, private, raw-data, secret-bearing, regulated,
+  customer, financial, deploy/release, or telemetry-bearing data handled
 - fit decision: native, adjacent native, link-only, convert, install, block, or
   defer
 - conversion loss: unsupported files, client-exclusive behavior, missing tools,
   missing auth model, or none
-- verification path: scanner result, target-client smoke test, rollback path,
-  owner, and active workflow evidence
+- local outcome evidence: scanner result, target-client smoke test,
+  representative fixture/eval prompt, rollback proof, owner, and active
+  workflow evidence
+- verification path: commands and checks that prove the artifact loads, works,
+  and stays inside the intended action boundary
 
 Block or defer when original source, license, runtime surface, permission class,
-or verification path is unknown. Discovery sources find candidates; they do not
-approve installs.
+maintenance cadence, data sensitivity, local outcome evidence, or verification
+path is unknown. Discovery sources find candidates; they do not approve installs.
 
 ## Harness Evaluation Loop
 
@@ -200,6 +207,8 @@ failures into tests or skill updates:
 - permission gates and human approvals
 - diffs, generated files, and lockfile/hash changes
 - verifier output, failures, retries, and rollback actions
+- local outcome evidence: representative task, fixture, or eval prompt that
+  proves the selected skill/plugin works before widening install scope
 - residual risk, owner, and next evaluation case
 
 Do not train or broaden the stack just to improve the harness. Improve the
@@ -261,7 +270,10 @@ Conversion rules:
 - Original source:
 - Runtime surface:
 - Permission class:
+- Maintenance/update cadence:
+- Data sensitivity:
 - Fit decision:
+- Local outcome evidence:
 - Verification path:
 
 **Harness Evaluation Loop**

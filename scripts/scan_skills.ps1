@@ -38,6 +38,7 @@ if (-not (Test-Path -LiteralPath $skillsRoot)) {
         $isPowerShell = $extension -in @(".ps1", ".psm1", ".psd1")
         $isSkillEntrypoint = $file.Name -eq "SKILL.md"
         $isDescriptor = $extension -in @(".md", ".json", ".yml", ".yaml")
+        $isStructuredDescriptor = $extension -in @(".json", ".yml", ".yaml")
         $shouldScanText = $isPowerShell -or $isSkillEntrypoint -or ($extension -in @(".md", ".json", ".yml", ".yaml"))
 
         if (-not $shouldScanText) {
@@ -53,6 +54,10 @@ if (-not (Test-Path -LiteralPath $skillsRoot)) {
                 $rule = if ($isSkillEntrypoint) { "prompt-injection-directive" } elseif ($isDescriptor) { "tool-descriptor-injection" } else { "instruction-hijack-directive" }
                 $message = if ($isSkillEntrypoint) { "Skill entrypoint contains a direct instruction-hijacking phrase." } elseif ($isDescriptor) { "Descriptor or documentation file contains a direct instruction-hijacking phrase." } else { "Skill file contains a direct instruction-hijacking phrase." }
                 $findings += New-Finding "critical" $rule $relative $lineNumber $message
+            }
+
+            if ($isStructuredDescriptor -and $line -match "(?i)^\s*['""]?(mcpServers|tools|commands|hooks|agents|subagents|apps|permissions|allowed-tools|auth|oauth|apiKey|token|secrets?|postinstall|install|command|args|env|network|telemetry)['""]?\s*[:=]") {
+                $findings += New-Finding "warning" "descriptor-runtime-surface" $relative $lineNumber "Descriptor declares a tool, permission, auth, install, telemetry, or runtime surface; inspect source and permissions before install or conversion."
             }
 
             if ($isPowerShell -and $line -match "(?i)\b(Invoke-Expression|iex)\b") {

@@ -87,6 +87,26 @@ function Read-SkillMetadata($SkillPath) {
     }
 }
 
+function Get-SkillRuntimeSurface($Skill) {
+    $dirs = @($Skill.supportingDirs)
+    $surface = @(
+        "sourceSkill.supportingFileCount=$($Skill.supportingFileCount)",
+        "sourceSkill.hasSupportingFiles=$($Skill.hasSupportingFiles)"
+    )
+
+    if ($dirs.Count -gt 0) {
+        $surface += "sourceSkill.supportingDirs=" + ($dirs -join ",")
+    } else {
+        $surface += "sourceSkill.supportingDirs=none"
+    }
+
+    foreach ($dirName in @("scripts", "references", "assets", "agents", "commands", "hooks")) {
+        $surface += "sourceSkill.has$($dirName.Substring(0,1).ToUpperInvariant())$($dirName.Substring(1))=$($dirs -contains $dirName)"
+    }
+
+    return $surface
+}
+
 function Get-TargetAdapter($TargetName) {
     switch (([string]$TargetName).ToLowerInvariant()) {
         "codex" {
@@ -163,7 +183,7 @@ function Get-AllAdapters() {
     ) | ForEach-Object { Get-TargetAdapter $_ }
 }
 
-function New-Result($Success, $Status, $TargetAdapter, $SourceKind, $SourceName, $GeneratedFiles, $Reason, $Native, $Lossy, $RequiresManualReview) {
+function New-Result($Success, $Status, $TargetAdapter, $SourceKind, $SourceName, $GeneratedFiles, $Reason, $Native, $Lossy, $RequiresManualReview, $SourceRuntimeSurface = @()) {
     return [ordered]@{
         success = [bool]$Success
         status = $Status
@@ -206,8 +226,15 @@ function New-Result($Success, $Status, $TargetAdapter, $SourceKind, $SourceName,
             runtimeSurface = @(
                 "generated files listed in generatedFiles",
                 "inspect source scripts, hooks, MCP/tools, auth, network calls, agents, apps, assets, and install steps before use"
-            )
+            ) + @($SourceRuntimeSurface)
             permissionClass = "local write artifact generation only; install and target-client enablement are separate review steps"
+            maintenanceCadence = "unknown until the original source update cadence, release path, and issue response are inspected"
+            dataSensitivity = "unknown until the source is reviewed for secrets, private data, raw-data handling, telemetry, auth, and external egress"
+            localOutcomeEvidence = @(
+                "scanner result required before install",
+                "target-client smoke test required before install",
+                "record one local task or fixture that proves the converted artifact loads and stays in bounds"
+            )
             fitDecision = if (-not $Success) {
                 "block"
             } elseif ($Native -and -not $RequiresManualReview) {
@@ -258,7 +285,7 @@ function Complete-Result($Result) {
 
 function Write-InstructionFile($Skill, $TargetAdapter, $OutputRoot) {
     if ($Skill.hasSupportingFiles -and -not $AllowPartial) {
-        return New-Result $false "blocked" $TargetAdapter "skill" $Skill.name @() "Target $($TargetAdapter.label) does not have a native skill folder adapter here; conversion would drop supporting files. Re-run with -AllowPartial only after manual review." $false $true $true
+        return New-Result $false "blocked" $TargetAdapter "skill" $Skill.name @() "Target $($TargetAdapter.label) does not have a native skill folder adapter here; conversion would drop supporting files. Re-run with -AllowPartial only after manual review." $false $true $true (Get-SkillRuntimeSurface $Skill)
     }
 
     $root = Join-PathParts $OutputRoot $TargetAdapter.root
@@ -289,7 +316,7 @@ function Write-InstructionFile($Skill, $TargetAdapter, $OutputRoot) {
     ) -join "`r`n"
 
     Set-Content -LiteralPath $filePath -Encoding UTF8 -Value $content
-    return New-Result $true "converted" $TargetAdapter "skill" $Skill.name @((Get-FullPath $filePath)) "Converted to an instruction-only artifact for $($TargetAdapter.label)." $false $true $true
+    return New-Result $true "converted" $TargetAdapter "skill" $Skill.name @((Get-FullPath $filePath)) "Converted to an instruction-only artifact for $($TargetAdapter.label)." $false $true $true (Get-SkillRuntimeSurface $Skill)
 }
 
 function Copy-NativeSkill($Skill, $TargetAdapter, $OutputRoot) {
@@ -312,7 +339,7 @@ function Copy-NativeSkill($Skill, $TargetAdapter, $OutputRoot) {
             Sort-Object FullName |
             ForEach-Object { Get-FullPath $_.FullName }
     )
-    return New-Result $true "converted" $TargetAdapter "skill" $Skill.name $generated "Copied native Agent Skill folder for $($TargetAdapter.label)." $true $false $false
+    return New-Result $true "converted" $TargetAdapter "skill" $Skill.name $generated "Copied native Agent Skill folder for $($TargetAdapter.label)." $true $false $false (Get-SkillRuntimeSurface $Skill)
 }
 
 function Convert-OneSkill($SkillPath, $TargetAdapter, $OutputRoot) {
@@ -367,10 +394,10 @@ function Convert-Plugin($PluginPath, $TargetAdapter, $OutputRoot) {
     $skillPaths = @(Get-PluginSkillPaths $PluginPath)
 
     if ($skillPaths.Count -eq 0) {
-        return New-Result $false "blocked" $TargetAdapter "plugin" $pluginName @() "Plugin conversion is blocked because no portable skills/ subdirectories with SKILL.md were found." $false $true $true
+        return New-Result $false "blocked" $TargetAdapter "plugin" $pluginName @() "Plugin conversion is blocked because no portable skills/ subdirectories with SKILL.md were found." $false $true $true @("pluginSkillCount=0", "pluginPureSkillBundle=$($purity.isPure)")
     }
     if (-not $purity.isPure) {
-        return New-Result $false "blocked" $TargetAdapter "plugin" $pluginName @() ("Plugin conversion is blocked because plugins can include tools, MCP, hooks, auth, or client-exclusive features. Unsupported entries: " + (@($purity.unsupported) -join ", ")) $false $true $true
+        return New-Result $false "blocked" $TargetAdapter "plugin" $pluginName @() ("Plugin conversion is blocked because plugins can include tools, MCP, hooks, auth, or client-exclusive features. Unsupported entries: " + (@($purity.unsupported) -join ", ")) $false $true $true @("pluginSkillCount=$($skillPaths.Count)", "pluginPureSkillBundle=$($purity.isPure)", "pluginUnsupportedEntries=" + (@($purity.unsupported) -join ","))
     }
 
     $generated = @()
@@ -382,7 +409,7 @@ function Convert-Plugin($PluginPath, $TargetAdapter, $OutputRoot) {
         $generated += @($result.generatedFiles)
     }
 
-    return New-Result $true "converted" $TargetAdapter "plugin" $pluginName $generated "Extracted portable skills from a pure skill-bundle plugin for $($TargetAdapter.label)." ($TargetAdapter.kind -eq "native-skill") ($TargetAdapter.kind -ne "native-skill") ($TargetAdapter.kind -ne "native-skill")
+    return New-Result $true "converted" $TargetAdapter "plugin" $pluginName $generated "Extracted portable skills from a pure skill-bundle plugin for $($TargetAdapter.label)." ($TargetAdapter.kind -eq "native-skill") ($TargetAdapter.kind -ne "native-skill") ($TargetAdapter.kind -ne "native-skill") @("pluginSkillCount=$($skillPaths.Count)", "pluginPureSkillBundle=$($purity.isPure)")
 }
 
 if ($ListTargets) {

@@ -9,6 +9,8 @@ unsafe shell behavior, and supply-chain drift as security issues.
 Please report:
 
 - prompt-injection directives inside bundled skills,
+- descriptor-declared MCP/tools/hooks/commands/agents/auth/install surfaces that
+  are hidden, misleading, or insufficiently reviewed,
 - fetch-and-execute patterns,
 - dynamic PowerShell execution,
 - credential-shaped secrets in skills, docs, fixtures, or logs,
@@ -31,7 +33,9 @@ Run:
 
 The scanner rejects direct prompt-injection phrases, dynamic PowerShell
 execution, fetch-and-execute pipelines, and credential-shaped secret literals in
-bundled skill files.
+bundled skills, descriptors, and docs. It also emits warnings for structured
+descriptors that declare tool, permission, auth, install, telemetry, or runtime
+surfaces requiring source review.
 
 ## Disclosure
 

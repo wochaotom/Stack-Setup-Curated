@@ -11,6 +11,7 @@ $tmpDestMismatch = Join-Path $tmpRoot "install-mismatch"
 $tmpSourceMismatch = Join-Path $tmpRoot "source-mismatch"
 $tmpMalicious = Join-Path $tmpRoot "malicious"
 $tmpDescriptor = Join-Path $tmpRoot "descriptor"
+$tmpDescriptorSurface = Join-Path $tmpRoot "descriptor-surface"
 $checks = @()
 
 function Add-Check($Name, $Pass, $Detail = "") {
@@ -86,6 +87,34 @@ description: Use when testing descriptor scanning.
             $badDescriptorScan.exitCode -ne 0 -and
             $badDescriptorScan.json.success -eq $false -and
             @($badDescriptorScan.json.findings | Where-Object { $_.rule -eq "tool-descriptor-injection" }).Count -gt 0
+        )
+
+        New-Item -ItemType Directory -Force -Path (Join-Path $tmpDescriptorSurface "skills\surface-test") | Out-Null
+        Set-Content -LiteralPath (Join-Path $tmpDescriptorSurface "skills\surface-test\SKILL.md") -Encoding UTF8 -Value @'
+---
+name: surface-test
+description: Use when testing descriptor runtime-surface warnings.
+---
+
+# Surface Test
+'@
+        Set-Content -LiteralPath (Join-Path $tmpDescriptorSurface "skills\surface-test\plugin.json") -Encoding UTF8 -Value @'
+{
+  "mcpServers": {
+    "demo": {
+      "command": "node server.js",
+      "env": {
+        "DEMO_TOKEN": "${DEMO_TOKEN}"
+      }
+    }
+  }
+}
+'@
+        $surfaceScan = Invoke-JsonScript $scanScript @("-SourceRoot", $tmpDescriptorSurface, "-Json")
+        Add-Check "descriptor runtime surface warns without failing" (
+            $surfaceScan.exitCode -eq 0 -and
+            $surfaceScan.json.success -eq $true -and
+            @($surfaceScan.json.findings | Where-Object { $_.severity -eq "warning" -and $_.rule -eq "descriptor-runtime-surface" }).Count -ge 3
         )
     }
 

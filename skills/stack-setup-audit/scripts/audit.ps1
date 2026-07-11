@@ -103,8 +103,11 @@ function Get-SourceReviewScorecard() {
         (New-SourceReviewItem "originalSource" "repository/package/docs page, maintainer, license, and pinned commit or version" "missing license, unclear maintainer, mutable source, or no original project inspected")
         (New-SourceReviewItem "runtimeSurface" "scripts, hooks, MCP servers, tools, auth, network calls, background services, agents, apps, assets, and generated files" "runtime behavior cannot be inspected or would execute before review")
         (New-SourceReviewItem "permissionClass" "read-only, local write, repo write, external write, secret-bearing, deploy/release, or raw-data handling" "permission class is unknown or exceeds the active workflow")
+        (New-SourceReviewItem "maintenanceCadence" "last update, release/update path, issue response, owner, and expected update frequency" "stale or abandoned source, unknown owner, or no safe update/rollback path")
+        (New-SourceReviewItem "dataSensitivity" "public, private, raw-data, secret-bearing, regulated, customer, financial, or deploy/release data touched by the workflow" "data class is unknown, telemetry/egress is unclear, or permission exceeds the data handled")
         (New-SourceReviewItem "fitDecision" "native, adjacent native, link-only, convert, install, block, or defer" "target-native and adjacent options were not checked before cross-ecosystem acquisition")
         (New-SourceReviewItem "conversionLoss" "unsupported files, client-exclusive behavior, missing tools, missing auth model, or none" "conversion would drop scripts, auth, MCP, hooks, tools, assets, or client-exclusive behavior")
+        (New-SourceReviewItem "localOutcomeEvidence" "scanner result, target-client smoke test, representative fixture/eval prompt, rollback proof, owner, and active workflow evidence" "no local proof that the artifact loads, works, and stays inside the intended action boundary")
         (New-SourceReviewItem "verificationPath" "scanner result, target-client smoke test, rollback path, owner, and active workflow evidence" "no verification command, no rollback path, no owner, or no current workflow need")
     )
 }
@@ -125,6 +128,7 @@ function Get-HarnessEvaluationLoop() {
         "Permissions: record human approval gates for config mutation, network-heavy work, auth, deploy/release, external-send, raw data, and secrets.",
         "Diffs: record generated files, lockfile/hash updates, repo diffs, and installed/derived artifact drift.",
         "Verification: record scanner output, smoke tests, target-client checks, failure class, retry count, rollback action, and residual risk.",
+        "Outcome: record one local task, fixture, or eval prompt that proves the selected skill/plugin actually works before widening install scope.",
         "Iteration: promote repeated failures into scanner rules, converter guards, fixtures, verifier commands, or skill instructions before broadening the stack."
     )
 }
